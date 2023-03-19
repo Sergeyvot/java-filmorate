@@ -66,7 +66,7 @@ public class UserController {
         }
         user.setId(++id);
         users.put(user.getId(), user);
-        log.debug("Зарегистрирован пользователь: {}", user.toString());
+        log.info("Зарегистрирован пользователь: {}", user.toString());
 
         return user;
     }
@@ -87,7 +87,7 @@ public class UserController {
             log.info("Передана некорректный id пользователя: {}", user.getId());
             throw new ValidationException("Пользователь с id " + user.getId() + " не существует.");
         }
-        log.debug("Обновлен пользователь: {}", user.toString());
+        log.info("Обновлен пользователь: {}", user.toString());
         users.put(user.getId(), user);
         return user;
     }

@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -111,7 +110,9 @@ class UserControllerTest {
         User newUser = new User("name@mail.ru", "LoginCorrect", birthday);
 
         controller.createUser(newUser);
-        User userSave = controller.users.get(1);
+
+        List<Integer> keys = new ArrayList<>(controller.users.keySet());
+        User userSave = controller.users.get(keys.get(0));
 
         assertEquals(userSave.getName(), "LoginCorrect", "Поля не совпадают.");
     }
@@ -190,6 +191,7 @@ class UserControllerTest {
      */
     @Test
     void shouldBeSavedListWhenRequestGet() throws ValidationException {
+        controller.users.clear();
         LocalDate birthday = LocalDate.of(2000, 11, 11);
         User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
         controller.createUser(user1);
@@ -199,7 +201,8 @@ class UserControllerTest {
 
         List<User> usersSave = new ArrayList<>(controller.findAllUsers());
 
-        assertEquals(usersSave.get(1).getId(), 2, "Поля не совпадают.");
+        assertEquals(usersSave.get(0).getLogin(), "LoginCorrect", "Поля не совпадают.");
+        assertEquals(usersSave.get(1).getEmail(), "name2@mail.ru", "Поля не совпадают");
         assertEquals(usersSave.size(), 2, "Размер списка не совпадает.");
     }
 }
