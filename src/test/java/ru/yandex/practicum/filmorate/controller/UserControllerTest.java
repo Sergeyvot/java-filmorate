@@ -19,6 +19,7 @@ class UserControllerTest {
 
     /**
      * Проверка обработки создания пользователя при пустом поле email
+     *
      * @throws ValidationException
      */
     @Test
@@ -35,6 +36,7 @@ class UserControllerTest {
 
     /**
      * Проверка обработки создания пользователя при некорректном email
+     *
      * @throws ValidationException
      */
     @Test
@@ -52,6 +54,7 @@ class UserControllerTest {
 
     /**
      * Проверка обработки создания пользователя при пустом поле login
+     *
      * @throws ValidationException
      */
     @Test
@@ -69,6 +72,7 @@ class UserControllerTest {
 
     /**
      * Проверка обработки создания пользователя при некорректном логине
+     *
      * @throws ValidationException
      */
     @Test
@@ -86,6 +90,7 @@ class UserControllerTest {
 
     /**
      * Проверка обработки создания пользователя при некорректной дате рождения пользователя
+     *
      * @throws ValidationException
      */
     @Test
@@ -119,6 +124,7 @@ class UserControllerTest {
 
     /**
      * Проверка обработки создания пользователя при пустом теле запроса
+     *
      * @throws ValidationException
      */
     @Test
@@ -134,6 +140,7 @@ class UserControllerTest {
 
     /**
      * Проверка обработки создания пользователя при совпадающем логине
+     *
      * @throws ValidationException
      */
     @Test
@@ -154,6 +161,7 @@ class UserControllerTest {
 
     /**
      * Проверка обработки обновления пользователя при некорректном id
+     *
      * @throws ValidationException
      */
     @Test
@@ -172,6 +180,7 @@ class UserControllerTest {
 
     /**
      * Проверка обработки обновления пользователя при пустом теле запроса
+     *
      * @throws ValidationException
      */
     @Test
@@ -187,6 +196,7 @@ class UserControllerTest {
 
     /**
      * Проверка получения списка всех пользователей при запросе GET
+     *
      * @throws ValidationException
      */
     @Test
@@ -204,5 +214,145 @@ class UserControllerTest {
         assertEquals(usersSave.get(0).getLogin(), "LoginCorrect", "Поля не совпадают.");
         assertEquals(usersSave.get(1).getEmail(), "name2@mail.ru", "Поля не совпадают");
         assertEquals(usersSave.size(), 2, "Размер списка не совпадает.");
+    }
+
+    /**
+     * Проверка обработки обновления пользователя при пустом поле email
+     *
+     * @throws ValidationException
+     */
+    @Test
+    void shouldNotBeUpdateWhenEmailEmpty() throws ValidationException {
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.createUser(user1);
+        User userUpdate = new User("", "LoginUpdate", LocalDate.of(2000, 12, 11));
+        userUpdate.setId(user1.getId());
+
+        Throwable thrown = assertThrows(ValidationException.class, () -> {
+            controller.updateUser(userUpdate);
+        });
+        assertNotNull(thrown.getMessage());
+
+        assertEquals(controller.users.get(user1.getId()).getLogin(), "LoginCorrect",
+                "Пользователь обновлен");
+        assertEquals(controller.users.get(user1.getId()).getBirthday(), birthday, "Пользователь обновлен");
+    }
+
+    /**
+     * Проверка обработки обновления пользователя при некорректном email
+     *
+     * @throws ValidationException
+     */
+    @Test
+    void shouldNotBeUpdateWhenEmailIncorrect() throws ValidationException {
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.createUser(user1);
+        LocalDate birthday2 = LocalDate.of(2000, 12, 12);
+        User userUpdate = new User("name.mail.ru", "LoginUpdate", birthday2);
+        userUpdate.setId(user1.getId());
+
+        Throwable thrown = assertThrows(ValidationException.class, () -> {
+            controller.updateUser(userUpdate);
+        });
+        assertNotNull(thrown.getMessage());
+
+        assertEquals(controller.users.get(user1.getId()).getLogin(), "LoginCorrect",
+                "Пользователь обновлен");
+        assertEquals(controller.users.get(user1.getId()).getBirthday(), birthday, "Пользователь обновлен");
+    }
+
+    /**
+     * Проверка обработки обновления пользователя при пустом поле login
+     *
+     * @throws ValidationException
+     */
+    @Test
+    void shouldNotBeUpdateWhenLoginEmpty() throws ValidationException {
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.createUser(user1);
+        LocalDate birthday2 = LocalDate.of(2000, 12, 12);
+        User userUpdate = new User("name@mail.ru", "", birthday2);
+        userUpdate.setId(user1.getId());
+
+        Throwable thrown = assertThrows(ValidationException.class, () -> {
+            controller.updateUser(userUpdate);
+        });
+        assertNotNull(thrown.getMessage());
+
+        assertEquals(controller.users.get(user1.getId()).getLogin(), "LoginCorrect",
+                "Пользователь обновлен");
+        assertEquals(controller.users.get(user1.getId()).getBirthday(), birthday, "Пользователь обновлен");
+    }
+
+    /**
+     * Проверка обработки обновления пользователя при некорректном логине
+     *
+     * @throws ValidationException
+     */
+    @Test
+    void shouldNotBeUpdateWhenLoginIncorrect() throws ValidationException {
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.createUser(user1);
+        LocalDate birthday2 = LocalDate.of(2000, 12, 12);
+        User userUpdate = new User("name@mail.ru", "Login Incorrect", birthday2);
+        userUpdate.setId(user1.getId());
+
+        Throwable thrown = assertThrows(ValidationException.class, () -> {
+            controller.updateUser(userUpdate);
+        });
+        assertNotNull(thrown.getMessage());
+
+        assertEquals(controller.users.get(user1.getId()).getLogin(), "LoginCorrect",
+                "Пользователь обновлен");
+        assertEquals(controller.users.get(user1.getId()).getBirthday(), birthday, "Пользователь обновлен");
+    }
+
+    /**
+     * Проверка обработки обновления пользователя при некорректной дате рождения пользователя
+     *
+     * @throws ValidationException
+     */
+    @Test
+    void shouldNotBeUpdateWhenBirthdayIncorrect() throws ValidationException {
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.createUser(user1);
+        LocalDate birthday2 = LocalDate.of(2046, 11, 11);
+        User userUpdate = new User("name@mail.ru", "LoginCorrect", birthday2);
+        userUpdate.setId(user1.getId());
+
+        Throwable thrown = assertThrows(ValidationException.class, () -> {
+            controller.updateUser(userUpdate);
+        });
+        assertNotNull(thrown.getMessage());
+
+        assertEquals(controller.users.get(user1.getId()).getLogin(), "LoginCorrect",
+                "Пользователь обновлен");
+        assertEquals(controller.users.get(user1.getId()).getBirthday(), birthday, "Пользователь обновлен");
+    }
+
+    /**
+     * Проверка обработки обновления пользователя при добавлении пользователя с корректными данными
+     *
+     * @throws ValidationException
+     */
+    @Test
+    void shouldBeUpdateWhenAllDatesCorrect() throws ValidationException {
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.createUser(user1);
+        LocalDate birthday2 = LocalDate.of(2000, 12, 12);
+        User userUpdate = new User("name@mail.ru", "LoginUpdate", birthday2);
+        userUpdate.setId(user1.getId());
+
+        controller.updateUser(userUpdate);
+
+        assertEquals(controller.users.get(user1.getId()).getLogin(), "LoginUpdate",
+                "Пользователь обновлен");
+        assertEquals(controller.users.get(user1.getId()).getBirthday(), birthday2, "Пользователь обновлен");
     }
 }

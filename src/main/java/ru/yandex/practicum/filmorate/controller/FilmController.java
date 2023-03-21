@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -39,33 +40,33 @@ public class FilmController {
     @PostMapping
     public Film addFilm(@RequestBody Film film) {
         if (film == null) {
-            log.info("Передано пустое тело запроса");
+            log.error("Передано пустое тело запроса");
             throw new ValidationException("Тело запроса не может быть пустым.");
         }
         for (Film someFilm : films.values()) {
             if (someFilm.getName().equals(film.getName())) {
-                log.info("Фильм {} уже существует.", film.getName());
+                log.error("Фильм {} уже существует.", film.getName());
                 throw new ValidationException("Фильм " + film.getName() + " уже существует.");
             }
         }
-        if (film.getName().isBlank()) {
-            log.info("Передано пустое название фильма.");
+        if (StringUtils.isBlank(film.getName())) {
+            log.error("Передано пустое название фильма.");
             throw new ValidationException("Название фильиа не может быть пустым.");
         }
         if (film.getDescription().length() > 200) {
-            log.info("Описание фильма больше допустимого количества символов: {}", film.getDescription().length());
+            log.error("Описание фильма больше допустимого количества символов: {}", film.getDescription().length());
             throw new ValidationException("Описание фильиа должно содержать нее более 200 символов.");
         }
         if (film.getDuration() <= 0) {
-            log.info("Передана некорректная продолжительность фильма: {}", film.getDuration());
+            log.error("Передана некорректная продолжительность фильма: {}", film.getDuration());
             throw new ValidationException("Продолжительность фильиа должна быть положительной.");
         }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.info("Передана некорректная дата релиза: {}", film.getReleaseDate());
+            log.error("Передана некорректная дата релиза: {}", film.getReleaseDate());
             throw new ValidationException("Дата релиза не может быть ранее 28.12.1895г.");
         }
         film.setId(++id);
-        log.debug("Добавлен фильм: {}", film.toString());
+        log.info("Добавлен фильм: {}", film.toString());
         films.put(film.getId(), film);
         return film;
     }
@@ -79,14 +80,30 @@ public class FilmController {
     public Film updateFilm(@RequestBody Film film) {
 
         if (film == null) {
-            log.info("Передано пустое тело запроса");
+            log.error("Передано пустое тело запроса");
             throw new ValidationException("Тело запроса не может быть пустым.");
         }
         if (!films.containsKey(film.getId())) {
-            log.info("Передана некорректный id фильма: {}", film.getId());
+            log.error("Передана некорректный id фильма: {}", film.getId());
             throw new ValidationException("Фильм с id " + film.getId() + " не существует.");
         }
-        log.debug("Обновлен фильм: {}", film.toString());
+        if (StringUtils.isBlank(film.getName())) {
+            log.error("На обновление передано пустое название фильма.");
+            throw new ValidationException("Название фильиа не может быть пустым.");
+        }
+        if (film.getDescription().length() > 200) {
+            log.error("Описание фильма больше допустимого количества символов: {}", film.getDescription().length());
+            throw new ValidationException("Описание фильиа должно содержать нее более 200 символов.");
+        }
+        if (film.getDuration() <= 0) {
+            log.error("Передана некорректная продолжительность фильма: {}", film.getDuration());
+            throw new ValidationException("Продолжительность фильиа должна быть положительной.");
+        }
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            log.error("Передана некорректная дата релиза: {}", film.getReleaseDate());
+            throw new ValidationException("Дата релиза не может быть ранее 28.12.1895г.");
+        }
+        log.info("Обновлен фильм: {}", film.toString());
         films.put(film.getId(), film);
         return film;
     }

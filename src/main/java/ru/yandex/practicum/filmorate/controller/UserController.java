@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -39,29 +40,30 @@ public class UserController {
     @PostMapping
     public User createUser(@RequestBody User user) {
         if (user == null) {
-            log.info("Передано пустое тело запроса");
+            log.error("Передано пустое тело запроса");
             throw new ValidationException("Тело запроса не может быть пустым.");
         }
         for (User someUser : users.values()) {
             if (someUser.getLogin().equals(user.getLogin())) {
-                log.info("Логин {} уже существует.", user.getLogin());
+                log.error("Логин {} уже существует.", user.getLogin());
                 throw new ValidationException("Пользователь с логином " + user.getLogin() + " уже зарегистрирован.");
             }
         }
-        if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.info("Передан некорректный адрес электронной почты: {}", user.getEmail());
+        if (StringUtils.containsNone(user.getEmail(), "@")) {
+            log.error("Передан некорректный адрес электронной почты: {}", user.getEmail());
             throw new ValidationException("Адрес электронной почты не может быть пустым и должен содержать " +
                     "символ @.");
         }
-        if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            log.info("Передан некорректный логин: {}", user.getLogin());
+        //Не смог подобрать метод, объединяющий проверку на пустую строку и наличие пробелов, взаимоисключают результат
+        if (StringUtils.isBlank(user.getLogin()) || StringUtils.containsWhitespace(user.getLogin())) {
+            log.error("Передан некорректный логин: {}", user.getLogin());
             throw new ValidationException("Логин не может быть пустым или содержать пробелы.");
         }
         if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.info("Передана некорректная дата рождения: {}", user.getBirthday());
+            log.error("Передана некорректная дата рождения: {}", user.getBirthday());
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
-        if (user.getName() == null || user.getName().isBlank()) {
+        if (StringUtils.isBlank(user.getName())) {
             user.setName(user.getLogin());
         }
         user.setId(++id);
@@ -80,12 +82,28 @@ public class UserController {
     public User updateUser(@RequestBody User user) {
 
         if (user == null) {
-            log.info("Передано пустое тело запроса");
+            log.error("Передано пустое тело запроса");
             throw new ValidationException("Тело запроса не может быть пустым.");
         }
         if (!users.containsKey(user.getId())) {
-            log.info("Передана некорректный id пользователя: {}", user.getId());
+            log.error("Передана некорректный id пользователя: {}", user.getId());
             throw new ValidationException("Пользователь с id " + user.getId() + " не существует.");
+        }
+        if (StringUtils.containsNone(user.getEmail(), "@")) {
+            log.error("Передан некорректный адрес электронной почты: {}", user.getEmail());
+            throw new ValidationException("Адрес электронной почты не может быть пустым и должен содержать " +
+                    "символ @.");
+        }
+        if (StringUtils.isBlank(user.getLogin()) || StringUtils.containsWhitespace(user.getLogin())) {
+            log.error("Передан некорректный логин: {}", user.getLogin());
+            throw new ValidationException("Логин не может быть пустым или содержать пробелы.");
+        }
+        if (user.getBirthday().isAfter(LocalDate.now())) {
+            log.error("Передана некорректная дата рождения: {}", user.getBirthday());
+            throw new ValidationException("Дата рождения не может быть в будущем.");
+        }
+        if (StringUtils.isBlank(user.getName())) {
+            user.setName(user.getLogin());
         }
         log.info("Обновлен пользователь: {}", user.toString());
         users.put(user.getId(), user);
