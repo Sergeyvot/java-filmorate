@@ -1,113 +1,107 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-/**
- * Класс-контроллер для обработки эндпоинтов класса User
- */
 @RestController
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
+    private final UserService userService;
 
-    protected final Map<Integer, User> users = new HashMap<>();
-    private static int id = 0;
+    @Autowired
+    public UserController(UserService userService) {
 
-    /**
-     * Запрос на получение всех пользователей
-     * @return Коллекция экземпляров класса User
-     */
+        this.userService = userService;
+    }
+
+    public UserService getUserService() {
+        return userService;
+    }
+
     @GetMapping
     public Collection<User> findAllUsers() {
-        log.info("Текущее количество пользователей: {}", users.size());
-        return users.values();
+
+        return userService.getUserStorage().getAllUsers();
     }
 
     /**
-     * Запрос на сохранение нового пользователя. В методе прописана логика валидации некорректных условий
-     * @param user Объект из тела запроса на сохранение
-     * @return Сохраненный пользователь
+     * Запрос на получение конкретного пользователя по id
+     * @param id - переменная пути, id пользователя
+     * @return пользователь с идентификатором id
      */
+    @GetMapping("/{id}")
+    public User findUser(@PathVariable("id") Long id) {
+
+        return userService.getUserStorage().findUserById(id);
+    }
+
     @PostMapping
     public User createUser(@RequestBody User user) {
-        if (user == null) {
-            log.error("Передано пустое тело запроса");
-            throw new ValidationException("Тело запроса не может быть пустым.");
-        }
-        for (User someUser : users.values()) {
-            if (someUser.getLogin().equals(user.getLogin())) {
-                log.error("Логин {} уже существует.", user.getLogin());
-                throw new ValidationException("Пользователь с логином " + user.getLogin() + " уже зарегистрирован.");
-            }
-        }
-        if (StringUtils.containsNone(user.getEmail(), "@")) {
-            log.error("Передан некорректный адрес электронной почты: {}", user.getEmail());
-            throw new ValidationException("Адрес электронной почты не может быть пустым и должен содержать " +
-                    "символ @.");
-        }
-        //Не смог подобрать метод, объединяющий проверку на пустую строку и наличие пробелов, взаимоисключают результат
-        if (StringUtils.isBlank(user.getLogin()) || StringUtils.containsWhitespace(user.getLogin())) {
-            log.error("Передан некорректный логин: {}", user.getLogin());
-            throw new ValidationException("Логин не может быть пустым или содержать пробелы.");
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("Передана некорректная дата рождения: {}", user.getBirthday());
-            throw new ValidationException("Дата рождения не может быть в будущем.");
-        }
-        if (StringUtils.isBlank(user.getName())) {
-            user.setName(user.getLogin());
-        }
-        user.setId(++id);
-        users.put(user.getId(), user);
-        log.info("Зарегистрирован пользователь: {}", user.toString());
 
-        return user;
+        return userService.getUserStorage().createUser(user);
     }
 
-    /**
-     * Запрос на обновление пользователя, имеющегося в коллекции. Также прописана логика валидации
-     * @param user Объект из тела запроса на обновление
-     * @return Обновленный пользователь
-     */
     @PutMapping
     public User updateUser(@RequestBody User user) {
 
-        if (user == null) {
-            log.error("Передано пустое тело запроса");
-            throw new ValidationException("Тело запроса не может быть пустым.");
-        }
-        if (!users.containsKey(user.getId())) {
-            log.error("Передана некорректный id пользователя: {}", user.getId());
-            throw new ValidationException("Пользователь с id " + user.getId() + " не существует.");
-        }
-        if (StringUtils.containsNone(user.getEmail(), "@")) {
-            log.error("Передан некорректный адрес электронной почты: {}", user.getEmail());
-            throw new ValidationException("Адрес электронной почты не может быть пустым и должен содержать " +
-                    "символ @.");
-        }
-        if (StringUtils.isBlank(user.getLogin()) || StringUtils.containsWhitespace(user.getLogin())) {
-            log.error("Передан некорректный логин: {}", user.getLogin());
-            throw new ValidationException("Логин не может быть пустым или содержать пробелы.");
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("Передана некорректная дата рождения: {}", user.getBirthday());
-            throw new ValidationException("Дата рождения не может быть в будущем.");
-        }
-        if (StringUtils.isBlank(user.getName())) {
-            user.setName(user.getLogin());
-        }
-        log.info("Обновлен пользователь: {}", user.toString());
-        users.put(user.getId(), user);
-        return user;
+        return userService.getUserStorage().updateUser(user);
+    }
+
+    /**
+     * Запрос на добавление в друзья
+     * @param id id пользователя, которому добавляется друг
+     * @param friendId id пользователя, который добавляется в друзья
+     * @return пользователь, к которому добавился друг
+     */
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable("id") Long id,
+                          @PathVariable("friendId") Long friendId
+    ) {
+        return userService.addFriend(id, friendId);
+    }
+
+    /**
+     * Запрос на удаление из друзей
+     * @param id id пользователя, у которого удаляется друг
+     * @param friendId id пользователя, который удаляется из друзей
+     * @return пользователь, у которого удаляется друг
+     */
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User removeFriend(@PathVariable("id") Long id,
+                             @PathVariable("friendId") Long friendId
+    ) {
+        return userService.removeFriend(id, friendId);
+    }
+
+    /**
+     * Запрос на получение списка друзей пользователя с идентификатором id
+     * @param id id пользователя
+     * @return список друзей пользователя
+     */
+    @GetMapping("/{id}/friends")
+    public List<User> findAllFriends(@PathVariable("id") Long id) {
+
+        return userService.findAllFriends(id);
+    }
+
+    /**
+     * Запрос на получение списка общих друзей двух пользователей
+     * @param id id первого пользователя
+     * @param otherId id второго пользователя
+     * @return список общих друзей
+     */
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> findMutualFriends(@PathVariable("id") Long id,
+                                        @PathVariable("otherId") Long otherId
+    ) {
+        return userService.findMutualFriends(id, otherId);
     }
 }
 
