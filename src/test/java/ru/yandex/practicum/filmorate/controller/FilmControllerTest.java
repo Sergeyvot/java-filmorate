@@ -514,7 +514,7 @@ class FilmControllerTest {
      * @throws ValidationException
      */
     @Test
-    void shouldBeNotGetListPopularFilmsWhenCountIncorrect() throws ValidationException{
+    void shouldBeNotGetListPopularFilmsWhenCountIncorrect() throws ValidationException {
         LocalDate releaseDate = LocalDate.of(2000, 11, 11);
         Film film1 = new Film("name1", "descriptionFilm1", releaseDate, 120);
         controller.addFilm(film1);
