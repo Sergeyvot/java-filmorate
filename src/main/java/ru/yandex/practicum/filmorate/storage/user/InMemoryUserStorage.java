@@ -29,20 +29,94 @@ public class InMemoryUserStorage implements UserStorage {
 
     /**
      * Метод добавления нового пользователя
+     *
      * @param user экземпляр класса User
      * @return сохраненный пользователь
      */
     @Override
     public User createUser(User user) {
-        if (user == null) {
-            log.error("Передано пустое тело запроса");
-            throw new ValidationException("Тело запроса не может быть пустым.");
-        }
         for (User someUser : users.values()) {
             if (someUser.getLogin().equals(user.getLogin())) {
                 log.error("Логин {} уже существует.", user.getLogin());
                 throw new ValidationException("Пользователь с логином " + user.getLogin() + " уже зарегистрирован.");
             }
+        }
+        checkValidationUser(user);
+        user.setId(++id);
+        users.put(user.getId(), user);
+        log.info("Зарегистрирован пользователь: {}", user);
+
+        return user;
+    }
+
+    /**
+     * Метод удаления конкретного пользователя
+     *
+     * @param id id пользователя
+     */
+    @Override
+    public void removeUser(long id) {
+        if (!users.containsKey(id)) {
+            log.error("Передана некорректный id пользователя: {}", id);
+            throw new UserNotFoundException("Пользователь с id " + id + " не существует.");
+        }
+        users.remove(id);
+    }
+
+    /**
+     * Метод обновления пользователя
+     *
+     * @param updateUser обновленный пользователь
+     * @return сохраненный обновленный пользователь
+     */
+    @Override
+    public User updateUser(User updateUser) {
+        checkValidationUser(updateUser);
+        if (!users.containsKey(updateUser.getId())) {
+            log.error("Передана некорректный id пользователя: {}", updateUser.getId());
+            throw new UserNotFoundException(String.format("Пользователь с id %d не найден", updateUser.getId()));
+        }
+        log.info("Обновлен пользователь: {}", updateUser);
+        users.put(updateUser.getId(), updateUser);
+        return updateUser;
+    }
+
+    /**
+     * Метод получения списка всех пользователей
+     *
+     * @return список всех пользователей
+     */
+    @Override
+    public Collection<User> getAllUsers() {
+        log.info("Текущее количество пользователей: {}", users.size());
+        return users.values();
+    }
+
+    /**
+     * Метод получения конкретного пользователя
+     *
+     * @param id id пользователя
+     * @return пользователь с идентификатором id
+     */
+    @Override
+    public User findUserById(Long id) {
+
+        return users.values().stream()
+                .filter(u -> u.getId() == (id))
+                .findFirst()
+                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь с id %d не найден", id)));
+    }
+
+    /**
+     * Проверка валидации параметров объекта User
+     * @param user объект User
+     * @throws ValidationException
+     */
+    private void checkValidationUser(User user) throws ValidationException {
+
+        if (user == null) {
+            log.error("Передано пустое тело запроса");
+            throw new ValidationException("Тело запроса не может быть пустым.");
         }
         if (StringUtils.containsNone(user.getEmail(), "@")) {
             log.error("Передан некорректный адрес электронной почты: {}", user.getEmail());
@@ -61,83 +135,5 @@ public class InMemoryUserStorage implements UserStorage {
         if (StringUtils.isBlank(user.getName())) {
             user.setName(user.getLogin());
         }
-        user.setId(++id);
-        users.put(user.getId(), user);
-        log.info("Зарегистрирован пользователь: {}", user);
-
-        return user;
-    }
-
-    /**
-     * Метод удаления конкретного пользователя
-     * @param id id пользователя
-     */
-    @Override
-    public void removeUser(long id) {
-        if (!users.containsKey(id)) {
-            log.error("Передана некорректный id пользователя: {}", id);
-            throw new UserNotFoundException("Пользователь с id " + id + " не существует.");
-        }
-        users.remove(id);
-    }
-
-    /**
-     * Метод обновления пользователя
-     * @param updateUser обновленный пользователь
-     * @return сохраненный обновленный пользователь
-     */
-    @Override
-    public User updateUser(User updateUser) {
-        if (updateUser == null) {
-            log.error("Передано пустое тело запроса");
-            throw new ValidationException("Тело запроса не может быть пустым.");
-        }
-        if (!users.containsKey(updateUser.getId())) {
-            log.error("Передана некорректный id пользователя: {}", updateUser.getId());
-            throw new UserNotFoundException(String.format("Пользователь с id %d не найден", updateUser.getId()));
-        }
-        if (StringUtils.containsNone(updateUser.getEmail(), "@")) {
-            log.error("Передан некорректный адрес электронной почты: {}", updateUser.getEmail());
-            throw new ValidationException("Адрес электронной почты не может быть пустым и должен содержать " +
-                    "символ @.");
-        }
-        if (StringUtils.isBlank(updateUser.getLogin()) || StringUtils.containsWhitespace(updateUser.getLogin())) {
-            log.error("Передан некорректный логин: {}", updateUser.getLogin());
-            throw new ValidationException("Логин не может быть пустым или содержать пробелы.");
-        }
-        if (updateUser.getBirthday().isAfter(LocalDate.now())) {
-            log.error("Передана некорректная дата рождения: {}", updateUser.getBirthday());
-            throw new ValidationException("Дата рождения не может быть в будущем.");
-        }
-        if (StringUtils.isBlank(updateUser.getName())) {
-            updateUser.setName(updateUser.getLogin());
-        }
-        log.info("Обновлен пользователь: {}", updateUser);
-        users.put(updateUser.getId(), updateUser);
-        return updateUser;
-    }
-
-    /**
-     * Метод получения списка всех пользователей
-     * @return список всех пользователей
-     */
-    @Override
-    public Collection<User> getAllUsers() {
-        log.info("Текущее количество пользователей: {}", users.size());
-        return users.values();
-    }
-
-    /**
-     * Метод получения конкретного пользователя
-     * @param id id пользователя
-     * @return пользователь с идентификатором id
-     */
-    @Override
-    public User findUserById(Long id) {
-
-        return users.values().stream()
-                .filter(u -> u.getId() == (id))
-                .findFirst()
-                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь с id %d не найден", id)));
     }
 }

@@ -27,36 +27,38 @@ public class UserController {
 
     @GetMapping
     public Collection<User> findAllUsers() {
-
-        return userService.getUserStorage().getAllUsers();
+        //Убрано обращение к полю класса сервиса, логика реализуется через метод класса. Аналогично в других методах
+        return userService.findAllUsers();
     }
 
     /**
      * Запрос на получение конкретного пользователя по id
+     *
      * @param id - переменная пути, id пользователя
      * @return пользователь с идентификатором id
      */
     @GetMapping("/{id}")
-    public User findUser(@PathVariable("id") Long id) {
+    public User findUserById(@PathVariable("id") Long id) {
 
-        return userService.getUserStorage().findUserById(id);
+        return userService.findUserById(id);
     }
 
     @PostMapping
     public User createUser(@RequestBody User user) {
 
-        return userService.getUserStorage().createUser(user);
+        return userService.createUser(user);
     }
 
     @PutMapping
     public User updateUser(@RequestBody User user) {
 
-        return userService.getUserStorage().updateUser(user);
+        return userService.updateUser(user);
     }
 
     /**
      * Запрос на добавление в друзья
-     * @param id id пользователя, которому добавляется друг
+     *
+     * @param id       id пользователя, которому добавляется друг
      * @param friendId id пользователя, который добавляется в друзья
      * @return пользователь, к которому добавился друг
      */
@@ -69,7 +71,8 @@ public class UserController {
 
     /**
      * Запрос на удаление из друзей
-     * @param id id пользователя, у которого удаляется друг
+     *
+     * @param id       id пользователя, у которого удаляется друг
      * @param friendId id пользователя, который удаляется из друзей
      * @return пользователь, у которого удаляется друг
      */
@@ -82,6 +85,7 @@ public class UserController {
 
     /**
      * Запрос на получение списка друзей пользователя с идентификатором id
+     *
      * @param id id пользователя
      * @return список друзей пользователя
      */
@@ -93,7 +97,8 @@ public class UserController {
 
     /**
      * Запрос на получение списка общих друзей двух пользователей
-     * @param id id первого пользователя
+     *
+     * @param id      id первого пользователя
      * @param otherId id второго пользователя
      * @return список общих друзей
      */

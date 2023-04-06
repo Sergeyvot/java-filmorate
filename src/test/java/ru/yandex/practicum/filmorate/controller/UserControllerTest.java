@@ -368,12 +368,12 @@ class UserControllerTest {
     void shouldBeAddFriendsWhenAllIdCorrect() throws UserNotFoundException {
         LocalDate birthday = LocalDate.of(2000, 11, 11);
         User user1 = new User("name@mail.ru", "LoginUser1", birthday);
-        controller.getUserService().getUserStorage().createUser(user1);
+        controller.createUser(user1);
         LocalDate birthday2 = LocalDate.of(2000, 12, 12);
         User user2 = new User("name@yandex.ru", "LoginUser2", birthday2);
-        controller.getUserService().getUserStorage().createUser(user2);
+        controller.createUser(user2);
 
-        controller.getUserService().addFriend(user1.getId(), user2.getId());
+        controller.addFriend(user1.getId(), user2.getId());
 
         assertEquals(user1.getFriends().size(), 1, "Размер списка не совпадает");
         assertEquals(user2.getFriends().size(), 1, "Размер списка не совпадает");
@@ -389,13 +389,13 @@ class UserControllerTest {
     void shouldBeNotAddFriendsWhenIdUserIncorrect() throws UserNotFoundException {
         LocalDate birthday = LocalDate.of(2000, 11, 11);
         User user1 = new User("name@mail.ru", "LoginUser1", birthday);
-        controller.getUserService().getUserStorage().createUser(user1);
+        controller.createUser(user1);
         LocalDate birthday2 = LocalDate.of(2000, 12, 12);
         User user2 = new User("name@yandex.ru", "LoginUser2", birthday2);
-        controller.getUserService().getUserStorage().createUser(user2);
+        controller.createUser(user2);
 
         Throwable thrown = assertThrows(UserNotFoundException.class, () -> {
-            controller.getUserService().addFriend(9999L, user2.getId());
+            controller.addFriend(9999L, user2.getId());
         });
         assertNotNull(thrown.getMessage());
 
@@ -413,13 +413,13 @@ class UserControllerTest {
     void shouldBeNotAddFriendsWhenIdFriendIncorrect() throws UserNotFoundException {
         LocalDate birthday = LocalDate.of(2000, 11, 11);
         User user1 = new User("name@mail.ru", "LoginUser1", birthday);
-        controller.getUserService().getUserStorage().createUser(user1);
+        controller.createUser(user1);
         LocalDate birthday2 = LocalDate.of(2000, 12, 12);
         User user2 = new User("name@yandex.ru", "LoginUser2", birthday2);
-        controller.getUserService().getUserStorage().createUser(user2);
+        controller.createUser(user2);
 
         Throwable thrown = assertThrows(UserNotFoundException.class, () -> {
-            controller.getUserService().addFriend(user1.getId(), 9999L);
+            controller.addFriend(user1.getId(), 9999L);
         });
         assertNotNull(thrown.getMessage());
 
@@ -437,13 +437,13 @@ class UserControllerTest {
     void shouldBeRemoveFriendsWhenAllIdCorrect() throws UserNotFoundException {
         LocalDate birthday = LocalDate.of(2000, 11, 11);
         User user1 = new User("name@mail.ru", "LoginUser1", birthday);
-        controller.getUserService().getUserStorage().createUser(user1);
+        controller.createUser(user1);
         LocalDate birthday2 = LocalDate.of(2000, 12, 12);
         User user2 = new User("name@yandex.ru", "LoginUser2", birthday2);
-        controller.getUserService().getUserStorage().createUser(user2);
+        controller.createUser(user2);
 
-        controller.getUserService().addFriend(user1.getId(), user2.getId());
-        controller.getUserService().removeFriend(user1.getId(), user2.getId());
+        controller.addFriend(user1.getId(), user2.getId());
+        controller.removeFriend(user1.getId(), user2.getId());
 
         assertEquals(user1.getFriends().size(), 0, "Список заполнен");
         assertEquals(user2.getFriends().size(), 0, "Список заполнен");
@@ -459,15 +459,15 @@ class UserControllerTest {
     void shouldBeNotRemoveFriendsWhenIdUserIncorrect() throws UserNotFoundException {
         LocalDate birthday = LocalDate.of(2000, 11, 11);
         User user1 = new User("name@mail.ru", "LoginUser1", birthday);
-        controller.getUserService().getUserStorage().createUser(user1);
+        controller.createUser(user1);
         LocalDate birthday2 = LocalDate.of(2000, 12, 12);
         User user2 = new User("name@yandex.ru", "LoginUser2", birthday2);
-        controller.getUserService().getUserStorage().createUser(user2);
+        controller.createUser(user2);
 
-        controller.getUserService().addFriend(user1.getId(), user2.getId());
+        controller.addFriend(user1.getId(), user2.getId());
 
         Throwable thrown = assertThrows(UserNotFoundException.class, () -> {
-            controller.getUserService().removeFriend(9999L, user2.getId());
+            controller.removeFriend(9999L, user2.getId());
         });
         assertNotNull(thrown.getMessage());
 
@@ -485,15 +485,15 @@ class UserControllerTest {
     void shouldBeNotRemoveFriendsWhenIdFriendIncorrect() throws UserNotFoundException {
         LocalDate birthday = LocalDate.of(2000, 11, 11);
         User user1 = new User("name@mail.ru", "LoginUser1", birthday);
-        controller.getUserService().getUserStorage().createUser(user1);
+        controller.createUser(user1);
         LocalDate birthday2 = LocalDate.of(2000, 12, 12);
         User user2 = new User("name@yandex.ru", "LoginUser2", birthday2);
-        controller.getUserService().getUserStorage().createUser(user2);
+        controller.createUser(user2);
 
-        controller.getUserService().addFriend(user1.getId(), user2.getId());
+        controller.addFriend(user1.getId(), user2.getId());
 
         Throwable thrown = assertThrows(UserNotFoundException.class, () -> {
-            controller.getUserService().removeFriend(user1.getId(), 9999L);
+            controller.removeFriend(user1.getId(), 9999L);
         });
         assertNotNull(thrown.getMessage());
 
@@ -511,14 +511,14 @@ class UserControllerTest {
     void shouldBeGetListFriendsWhenAllIdCorrect() throws UserNotFoundException {
         LocalDate birthday = LocalDate.of(2000, 11, 11);
         User user1 = new User("name@mail.ru", "LoginUser1", birthday);
-        controller.getUserService().getUserStorage().createUser(user1);
+        controller.createUser(user1);
         LocalDate birthday2 = LocalDate.of(2000, 12, 12);
         User user2 = new User("name@yandex.ru", "LoginUser2", birthday2);
-        controller.getUserService().getUserStorage().createUser(user2);
+        controller.createUser(user2);
 
-        controller.getUserService().addFriend(user1.getId(), user2.getId());
-        List<User> userFriends = controller.getUserService().findAllFriends(user1.getId());
-        List<User> userFriends2 = controller.getUserService().findAllFriends(user2.getId());
+        controller.addFriend(user1.getId(), user2.getId());
+        List<User> userFriends = controller.findAllFriends(user1.getId());
+        List<User> userFriends2 = controller.findAllFriends(user2.getId());
 
         assertEquals(userFriends.size(), 1, "Размер списка не совпадает");
         assertEquals(userFriends2.size(), 1, "Размер списка не совпадает");
@@ -534,14 +534,14 @@ class UserControllerTest {
     void shouldBeNotGetListFriendsWhenIdUserIncorrect() throws UserNotFoundException {
         LocalDate birthday = LocalDate.of(2000, 11, 11);
         User user1 = new User("name@mail.ru", "LoginUser1", birthday);
-        controller.getUserService().getUserStorage().createUser(user1);
+        controller.createUser(user1);
         LocalDate birthday2 = LocalDate.of(2000, 12, 12);
         User user2 = new User("name@yandex.ru", "LoginUser2", birthday2);
-        controller.getUserService().getUserStorage().createUser(user2);
+        controller.createUser(user2);
 
         controller.getUserService().addFriend(user1.getId(), user2.getId());
         Throwable thrown = assertThrows(UserNotFoundException.class, () -> {
-            controller.getUserService().findAllFriends(9999L);
+            controller.findAllFriends(9999L);
         });
         assertNotNull(thrown.getMessage());
 
@@ -557,13 +557,13 @@ class UserControllerTest {
     void shouldBeGetEmptyListFriendsWhenNotFriends() throws UserNotFoundException {
         LocalDate birthday = LocalDate.of(2000, 11, 11);
         User user1 = new User("name@mail.ru", "LoginUser1", birthday);
-        controller.getUserService().getUserStorage().createUser(user1);
+        controller.createUser(user1);
         LocalDate birthday2 = LocalDate.of(2000, 12, 12);
         User user2 = new User("name@yandex.ru", "LoginUser2", birthday2);
-        controller.getUserService().getUserStorage().createUser(user2);
+        controller.createUser(user2);
 
-        List<User> userFriends = controller.getUserService().findAllFriends(user1.getId());
-        List<User> userFriends2 = controller.getUserService().findAllFriends(user2.getId());
+        List<User> userFriends = controller.findAllFriends(user1.getId());
+        List<User> userFriends2 = controller.findAllFriends(user2.getId());
 
         assertEquals(userFriends.size(), 0, "Размер списка не совпадает");
         assertEquals(userFriends2.size(), 0, "Размер списка не совпадает");
@@ -577,17 +577,17 @@ class UserControllerTest {
     void shouldBeGetListMutualFriendsWhenAllDataCorrect() throws UserNotFoundException {
         LocalDate birthday = LocalDate.of(2000, 11, 11);
         User user1 = new User("name@mail.ru", "LoginUser1", birthday);
-        controller.getUserService().getUserStorage().createUser(user1);
+        controller.createUser(user1);
         LocalDate birthday2 = LocalDate.of(2000, 12, 12);
         User user2 = new User("name@yandex.ru", "LoginUser2", birthday2);
-        controller.getUserService().getUserStorage().createUser(user2);
+        controller.createUser(user2);
         LocalDate birthday3 = LocalDate.of(2003, 10, 10);
         User user3 = new User("name@list.ru", "LoginUser3", birthday3);
-        controller.getUserService().getUserStorage().createUser(user3);
+        controller.createUser(user3);
 
-        controller.getUserService().addFriend(user1.getId(), user2.getId());
-        controller.getUserService().addFriend(user1.getId(), user3.getId());
-        List<User> userMutualFriends = controller.getUserService().findMutualFriends(user2.getId(), user3.getId());
+        controller.addFriend(user1.getId(), user2.getId());
+        controller.addFriend(user1.getId(), user3.getId());
+        List<User> userMutualFriends = controller.findMutualFriends(user2.getId(), user3.getId());
 
         assertEquals(userMutualFriends.size(), 1, "Размер списка не совпадает");
         assertEquals(userMutualFriends.get(0), user1,"Пользователь не совпадает");
@@ -601,19 +601,19 @@ class UserControllerTest {
     void shouldBeGetNotListMutualFriendsWhenIdUserIncorrect() throws UserNotFoundException {
         LocalDate birthday = LocalDate.of(2000, 11, 11);
         User user1 = new User("name@mail.ru", "LoginUser1", birthday);
-        controller.getUserService().getUserStorage().createUser(user1);
+        controller.createUser(user1);
         LocalDate birthday2 = LocalDate.of(2000, 12, 12);
         User user2 = new User("name@yandex.ru", "LoginUser2", birthday2);
-        controller.getUserService().getUserStorage().createUser(user2);
+        controller.createUser(user2);
         LocalDate birthday3 = LocalDate.of(2003, 10, 10);
         User user3 = new User("name@list.ru", "LoginUser3", birthday3);
-        controller.getUserService().getUserStorage().createUser(user3);
+        controller.createUser(user3);
 
-        controller.getUserService().addFriend(user1.getId(), user2.getId());
-        controller.getUserService().addFriend(user1.getId(), user3.getId());
+        controller.addFriend(user1.getId(), user2.getId());
+        controller.addFriend(user1.getId(), user3.getId());
 
         Throwable thrown = assertThrows(UserNotFoundException.class, () -> {
-            controller.getUserService().findMutualFriends(9999L, user3.getId());
+            controller.findMutualFriends(9999L, user3.getId());
         });
         assertNotNull(thrown.getMessage());
 
@@ -629,19 +629,19 @@ class UserControllerTest {
     void shouldBeGetNotListMutualFriendsWhenIdOtherUserIncorrect() throws UserNotFoundException {
         LocalDate birthday = LocalDate.of(2000, 11, 11);
         User user1 = new User("name@mail.ru", "LoginUser1", birthday);
-        controller.getUserService().getUserStorage().createUser(user1);
+        controller.createUser(user1);
         LocalDate birthday2 = LocalDate.of(2000, 12, 12);
         User user2 = new User("name@yandex.ru", "LoginUser2", birthday2);
-        controller.getUserService().getUserStorage().createUser(user2);
+        controller.createUser(user2);
         LocalDate birthday3 = LocalDate.of(2003, 10, 10);
         User user3 = new User("name@list.ru", "LoginUser3", birthday3);
-        controller.getUserService().getUserStorage().createUser(user3);
+        controller.createUser(user3);
 
-        controller.getUserService().addFriend(user1.getId(), user2.getId());
-        controller.getUserService().addFriend(user1.getId(), user3.getId());
+        controller.addFriend(user1.getId(), user2.getId());
+        controller.addFriend(user1.getId(), user3.getId());
 
         Throwable thrown = assertThrows(UserNotFoundException.class, () -> {
-            controller.getUserService().findMutualFriends(user2.getId(), 9999L);
+            controller.findMutualFriends(user2.getId(), 9999L);
         });
         assertNotNull(thrown.getMessage());
 
@@ -657,19 +657,54 @@ class UserControllerTest {
     void shouldBeGetEmptyListMutualFriendsWhenNotMutualFriends() throws UserNotFoundException {
         LocalDate birthday = LocalDate.of(2000, 11, 11);
         User user1 = new User("name@mail.ru", "LoginUser1", birthday);
-        controller.getUserService().getUserStorage().createUser(user1);
+        controller.createUser(user1);
         LocalDate birthday2 = LocalDate.of(2000, 12, 12);
         User user2 = new User("name@yandex.ru", "LoginUser2", birthday2);
-        controller.getUserService().getUserStorage().createUser(user2);
+        controller.createUser(user2);
         LocalDate birthday3 = LocalDate.of(2003, 10, 10);
         User user3 = new User("name@list.ru", "LoginUser3", birthday3);
-        controller.getUserService().getUserStorage().createUser(user3);
+        controller.createUser(user3);
 
-        controller.getUserService().addFriend(user1.getId(), user2.getId());
-        controller.getUserService().addFriend(user2.getId(), user3.getId());
+        controller.addFriend(user1.getId(), user2.getId());
+        controller.addFriend(user2.getId(), user3.getId());
 
-        List<User> userMutualFriends = controller.getUserService().findMutualFriends(user2.getId(), user3.getId());
+        List<User> userMutualFriends = controller.findMutualFriends(user2.getId(), user3.getId());
 
         assertEquals(userMutualFriends.size(), 0, "Размер списка не совпадает");
+    }
+
+    /**
+     * Проверка обработки получения пользователя по Id, когда передан корректный Id
+     * @throws UserNotFoundException
+     */
+    @Test
+    void shouldBeGetUserWhenFindByCorrectId() throws UserNotFoundException {
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginUser1", birthday);
+        controller.createUser(user1);
+
+        User saveUser = controller.findUserById(user1.getId());
+
+        assertEquals(user1, saveUser, "Пользователи не совпадают.");
+        assertNotNull(saveUser, "Пользователь не получен");
+    }
+
+    /**
+     * Проверка обработки получения пользователя по Id, когда передан некорректный Id
+     * @throws UserNotFoundException
+     */
+    @Test
+    void shouldBeNotGetUserWhenFindByInCorrectId() throws UserNotFoundException {
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginUser1", birthday);
+        controller.createUser(user1);
+
+        Throwable thrown = assertThrows(UserNotFoundException.class, () -> {
+            controller.findUserById(999L);
+        });
+        assertNotNull(thrown.getMessage());
+
+        assertEquals(thrown.getMessage(), "Пользователь с id 999 не найден",
+                "Сообщения об ошибке не совпадают");
     }
 }

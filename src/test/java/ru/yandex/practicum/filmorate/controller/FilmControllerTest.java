@@ -26,6 +26,7 @@ class FilmControllerTest {
 
     /**
      * Проверка обработки сохранения фильма при пустом теле запроса
+     *
      * @throws ValidationException
      */
     @Test
@@ -41,6 +42,7 @@ class FilmControllerTest {
 
     /**
      * Проверка обработки сохранения фильма при совпадении названия с имеющимся в коллекции
+     *
      * @throws ValidationException
      */
     @Test
@@ -62,6 +64,7 @@ class FilmControllerTest {
 
     /**
      * Проверка обработки сохранения фильма при добавлении фильма с пустым названием
+     *
      * @throws ValidationException
      */
     @Test
@@ -79,6 +82,7 @@ class FilmControllerTest {
 
     /**
      * Проверка обработки сохранения фильма при добавлении фильма с описанием более 200 символов
+     *
      * @throws ValidationException
      */
     @Test
@@ -316,6 +320,7 @@ class FilmControllerTest {
 
     /**
      * Проверка обработки добавления лайка с корректными id
+     *
      * @throws ValidationException
      */
     @Test
@@ -334,6 +339,7 @@ class FilmControllerTest {
 
     /**
      * Проверка обработки добавления лайка, когда id фильма некорректный
+     *
      * @throws FilmNotFoundException
      * @throws UserNotFoundException
      */
@@ -356,6 +362,7 @@ class FilmControllerTest {
 
     /**
      * Проверка обработки добавления лайка, когда id пользователя некорректный
+     *
      * @throws FilmNotFoundException
      * @throws UserNotFoundException
      */
@@ -378,6 +385,7 @@ class FilmControllerTest {
 
     /**
      * Проверка обработки удаления лайка с корректными id
+     *
      * @throws ValidationException
      */
     @Test
@@ -397,6 +405,7 @@ class FilmControllerTest {
 
     /**
      * Проверка обработки удаления лайка, когда id фильма некорректный
+     *
      * @throws FilmNotFoundException
      * @throws UserNotFoundException
      */
@@ -420,6 +429,7 @@ class FilmControllerTest {
 
     /**
      * Проверка обработки удаления лайка, когда id пользователя некорректный
+     *
      * @throws FilmNotFoundException
      * @throws UserNotFoundException
      */
@@ -443,6 +453,7 @@ class FilmControllerTest {
 
     /**
      * Проверка обработки удаления лайка, когда удаляющий пользователь не ставил лайк
+     *
      * @throws ValidationException
      */
     @Test
@@ -464,7 +475,7 @@ class FilmControllerTest {
         });
         assertNotNull(thrown.getMessage());
 
-        assertEquals(film1.getLikes().size(),1, "Размер списка не совпадает");
+        assertEquals(film1.getLikes().size(), 1, "Размер списка не совпадает");
         assertTrue(film1.getLikes().contains(user1.getId()), "Id пользователя не совпадает");
         assertFalse(film1.getLikes().contains(user2.getId()), "Id пользователя не совпадает");
     }
@@ -511,6 +522,7 @@ class FilmControllerTest {
 
     /**
      * Проверка обработки получения списка популярных фильмов с некорректным count
+     *
      * @throws ValidationException
      */
     @Test
@@ -538,6 +550,41 @@ class FilmControllerTest {
         assertNotNull(thrown.getMessage());
 
         assertEquals(thrown.getMessage(), "Лимит списка не может быть отрицательным или нулевым.",
+                "Сообщения об ошибке не совпадают");
+    }
+
+    /**
+     * Проверка обработки получения фильма по Id, когда передан корректный Id
+     * @throws FilmNotFoundException
+     */
+    @Test
+    void shouldBeGetFilmWhenFindByCorrectId() throws FilmNotFoundException {
+        LocalDate releaseDate = LocalDate.of(2000, 11, 11);
+        Film film1 = new Film("name1", "descriptionFilm1", releaseDate, 120);
+        controller.addFilm(film1);
+
+        Film saveFilm = controller.findFilmById(film1.getId());
+
+        assertEquals(film1, saveFilm, "Фильмы не совпадают.");
+        assertNotNull(saveFilm, "Фильм не получен");
+    }
+
+    /**
+     * Проверка обработки получения фильма по Id, когда передан некорректный Id
+     * @throws FilmNotFoundException
+     */
+    @Test
+    void shouldBeNotGetFilmWhenFindByInCorrectId() throws FilmNotFoundException {
+        LocalDate releaseDate = LocalDate.of(2000, 11, 11);
+        Film film1 = new Film("name1", "descriptionFilm1", releaseDate, 120);
+        controller.addFilm(film1);
+
+        Throwable thrown = assertThrows(FilmNotFoundException.class, () -> {
+            controller.findFilmById(999L);
+        });
+        assertNotNull(thrown.getMessage());
+
+        assertEquals(thrown.getMessage(), "Фильм с id 999 не найден",
                 "Сообщения об ошибке не совпадают");
     }
 }

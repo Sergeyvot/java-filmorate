@@ -12,6 +12,8 @@ import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,6 +45,26 @@ public class FilmService {
 
     public UserStorage getUserStorage() {
         return userStorage;
+    }
+
+    public Collection<Film> getAllFilms() {
+        return filmStorage.getAllFilms();
+    }
+
+    public Film findFilmById(Long id) {
+        return filmStorage.findFilmById(id);
+    }
+
+    public Film addFilm(Film film) {
+        return filmStorage.addFilm(film);
+    }
+
+    public void removeFilm(Long id) {
+        filmStorage.removeFilm(id);
+    }
+
+    public Film updateFilm(Film updateFilm) {
+        return filmStorage.updateFilm(updateFilm);
     }
 
     /**
@@ -103,9 +125,12 @@ public class FilmService {
             log.error("Передан некорректный лимит списка: {}", count);
             throw new ValidationException("Лимит списка не может быть отрицательным или нулевым.");
         }
+        if (filmStorage.getFilms().isEmpty()) {
+            return new ArrayList<>();
+        }
         log.info("Список из {} популярных фильмов по количеству лайков.", count);
         return filmStorage.getFilms().values().stream()
-                .sorted(Comparator.comparing(f -> -1 * f.getLikes().size()))
+                .sorted(Comparator.comparing(f -> f.getLikes().size(),Comparator.reverseOrder()))
                 .limit(count)
                 .collect(Collectors.toList());
     }

@@ -11,7 +11,7 @@ import java.util.Map;
 public interface FilmStorage {
     Film addFilm(Film film);
 
-    void removeFilm(long id);
+    void removeFilm(Long id);
 
     Film updateFilm(Film updateFilm);
 

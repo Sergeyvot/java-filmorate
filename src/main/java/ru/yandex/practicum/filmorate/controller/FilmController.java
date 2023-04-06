@@ -32,20 +32,20 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> findAllFilms() {
-
-        return filmService.getFilmStorage().getAllFilms();
+        //Убрано обращение к полю класса сервиса, логика реализуется через метод класса. Аналогично в других методах
+        return filmService.getAllFilms();
     }
 
     @PostMapping
     public Film addFilm(@RequestBody Film film) {
 
-        return filmService.getFilmStorage().addFilm(film);
+        return filmService.addFilm(film);
     }
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
 
-        return filmService.getFilmStorage().updateFilm(film);
+        return filmService.updateFilm(film);
     }
 
     /**
@@ -56,7 +56,7 @@ public class FilmController {
     @GetMapping("/{id}")
     public Film findFilmById(@PathVariable("id") Long id) {
 
-        return filmService.getFilmStorage().findFilmById(id);
+        return filmService.findFilmById(id);
     }
 
     /**

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
@@ -9,7 +10,9 @@ import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Сервис класс, реализующий логику добавления, удаления друзей, получения списка друзей
@@ -21,6 +24,7 @@ public class UserService {
 
     /**
      * Внедрены зависимости интерфейса хранилища UserStorage
+     *
      * @param userStorage экземпляр класса InMemoryUserStorage
      */
     @Autowired
@@ -32,9 +36,26 @@ public class UserService {
         return userStorage;
     }
 
+    public Collection<User> findAllUsers() {
+        return userStorage.getAllUsers();
+    }
+
+    public User findUserById(Long id) {
+        return userStorage.findUserById(id);
+    }
+
+    public User createUser(User user) {
+        return userStorage.createUser(user);
+    }
+
+    public User updateUser(User user) {
+        return userStorage.updateUser(user);
+    }
+
     /**
      * Метод добавления в друзья
-     * @param id id пользователя, которому добавляется друг
+     *
+     * @param id       id пользователя, которому добавляется друг
      * @param friendId id друга
      * @return пользователь, которому добавлен друг
      */
@@ -58,7 +79,8 @@ public class UserService {
 
     /**
      * Метод удаления из друзей
-     * @param id id пользователя, у которого удаляется друг
+     *
+     * @param id       id пользователя, у которого удаляется друг
      * @param friendId id друга
      * @return пользователь, у которого удален друг
      */
@@ -81,6 +103,7 @@ public class UserService {
 
     /**
      * Метод получения списка друзей конкретного пользователя
+     *
      * @param id id пользователя
      * @return список друзей пользователя
      */
@@ -92,9 +115,9 @@ public class UserService {
         User user = userStorage.getUsers().get(id);
         List<User> userFriends = new ArrayList<>();
         if (!user.getFriends().isEmpty()) {
-            for (Long idFriend : user.getFriends()) {
-                userFriends.add(userStorage.getUsers().get(idFriend));
-            }
+            userFriends = user.getFriends().stream()
+                    .map(x -> userStorage.getUsers().get(x))
+                    .collect(Collectors.toList());
         }
         log.info("У пользователя с id " + id + " {} друзей", userFriends.size());
         return userFriends;
@@ -102,7 +125,8 @@ public class UserService {
 
     /**
      * Метод получения списка друзеей, общих для двух пользователей
-     * @param id id первого пользователя
+     *
+     * @param id      id первого пользователя
      * @param otherId id второго пользователя
      * @return список общих друзей
      */
@@ -119,12 +143,11 @@ public class UserService {
         User otherUser = userStorage.getUsers().get(otherId);
         List<User> userFriends = new ArrayList<>();
 
+        //Использован метод утилитного класса CollectionUtils для нахождения пересечения списков друзей
         if (!user.getFriends().isEmpty() && !otherUser.getFriends().isEmpty()) {
-            for (Long idFriend : otherUser.getFriends()) {
-                if (user.getFriends().contains(idFriend)) {
-                    userFriends.add(userStorage.getUsers().get(idFriend));
-                }
-            }
+            userFriends = CollectionUtils.intersection(user.getFriends(), otherUser.getFriends()).stream()
+                    .map(x -> userStorage.getUsers().get(x))
+                    .collect(Collectors.toList());
         }
         log.info("У пользователей с id " + id + " и id " + otherId + " {} общих друзей", userFriends.size());
         return userFriends;
