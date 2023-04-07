@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -10,21 +10,12 @@ import java.util.Collection;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
 
     private final FilmService filmService;
-
-    /**
-     * Зависимость класса FilmService внедрена через конструктор
-     * @param filmService экземпляр класса FilmService
-     */
-    @Autowired
-    public FilmController(FilmService filmService) {
-
-        this.filmService = filmService;
-    }
 
     public FilmService getFilmService() {
         return filmService;

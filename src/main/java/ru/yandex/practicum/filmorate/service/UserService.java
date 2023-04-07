@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
@@ -12,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -143,9 +143,10 @@ public class UserService {
         User otherUser = userStorage.getUsers().get(otherId);
         List<User> userFriends = new ArrayList<>();
 
-        //Использован метод утилитного класса CollectionUtils для нахождения пересечения списков друзей
         if (!user.getFriends().isEmpty() && !otherUser.getFriends().isEmpty()) {
-            userFriends = CollectionUtils.intersection(user.getFriends(), otherUser.getFriends()).stream()
+            Set<Long> idMutualFriends = user.getFriends();
+            idMutualFriends.retainAll(otherUser.getFriends());
+            userFriends = idMutualFriends.stream()
                     .map(x -> userStorage.getUsers().get(x))
                     .collect(Collectors.toList());
         }
