@@ -4,14 +4,17 @@ import lombok.Data;
 import lombok.NonNull;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
-/**
- * Класс - модель данных приложения.
- */
 @Data
 public class User {
-    private int id;
+    private long id;
     private String name;
+    /**
+     * Добавлено поле friends, хранящее id друзей пользоватееля
+     */
+    private Set<Long> friends = new HashSet<>();
     @NonNull
     private final String email;
     private final String login;

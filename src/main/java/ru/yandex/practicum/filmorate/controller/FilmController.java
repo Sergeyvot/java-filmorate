@@ -1,110 +1,90 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-/**
- * Класс-контроллер для обработки эндпоинтов класса Film
- */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
 
-    protected final Map<Integer, Film> films = new HashMap<>();
-    private static int id = 0;
+    private final FilmService filmService;
 
-    /**
-     * Запрос на получение всех фильмов
-     * @return Коллекция экземпляров класса Film
-     */
+    public FilmService getFilmService() {
+        return filmService;
+    }
+
     @GetMapping
     public Collection<Film> findAllFilms() {
-        log.info("Текущее количество фильмов: {}", films.size());
-        return films.values();
+        //Убрано обращение к полю класса сервиса, логика реализуется через метод класса. Аналогично в других методах
+        return filmService.getAllFilms();
     }
 
-    /**
-     * Запрос на сохранение нового фильма. В методе прописана логика валидации некорректных условий
-     * @param film Объект из тела запроса на сохранение
-     * @return Сохраненный фильм
-     */
     @PostMapping
     public Film addFilm(@RequestBody Film film) {
-        if (film == null) {
-            log.error("Передано пустое тело запроса");
-            throw new ValidationException("Тело запроса не может быть пустым.");
-        }
-        for (Film someFilm : films.values()) {
-            if (someFilm.getName().equals(film.getName())) {
-                log.error("Фильм {} уже существует.", film.getName());
-                throw new ValidationException("Фильм " + film.getName() + " уже существует.");
-            }
-        }
-        if (StringUtils.isBlank(film.getName())) {
-            log.error("Передано пустое название фильма.");
-            throw new ValidationException("Название фильиа не может быть пустым.");
-        }
-        if (film.getDescription().length() > 200) {
-            log.error("Описание фильма больше допустимого количества символов: {}", film.getDescription().length());
-            throw new ValidationException("Описание фильиа должно содержать нее более 200 символов.");
-        }
-        if (film.getDuration() <= 0) {
-            log.error("Передана некорректная продолжительность фильма: {}", film.getDuration());
-            throw new ValidationException("Продолжительность фильиа должна быть положительной.");
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.error("Передана некорректная дата релиза: {}", film.getReleaseDate());
-            throw new ValidationException("Дата релиза не может быть ранее 28.12.1895г.");
-        }
-        film.setId(++id);
-        log.info("Добавлен фильм: {}", film.toString());
-        films.put(film.getId(), film);
-        return film;
+
+        return filmService.addFilm(film);
     }
 
-    /**
-     * Запрос на обновление фильма, имеющегося в коллекции. Также прописана логика валидации
-     * @param film Объект из тела запроса на обновление
-     * @return Обновленный фильм
-     */
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
 
-        if (film == null) {
-            log.error("Передано пустое тело запроса");
-            throw new ValidationException("Тело запроса не может быть пустым.");
-        }
-        if (!films.containsKey(film.getId())) {
-            log.error("Передана некорректный id фильма: {}", film.getId());
-            throw new ValidationException("Фильм с id " + film.getId() + " не существует.");
-        }
-        if (StringUtils.isBlank(film.getName())) {
-            log.error("На обновление передано пустое название фильма.");
-            throw new ValidationException("Название фильиа не может быть пустым.");
-        }
-        if (film.getDescription().length() > 200) {
-            log.error("Описание фильма больше допустимого количества символов: {}", film.getDescription().length());
-            throw new ValidationException("Описание фильиа должно содержать нее более 200 символов.");
-        }
-        if (film.getDuration() <= 0) {
-            log.error("Передана некорректная продолжительность фильма: {}", film.getDuration());
-            throw new ValidationException("Продолжительность фильиа должна быть положительной.");
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.error("Передана некорректная дата релиза: {}", film.getReleaseDate());
-            throw new ValidationException("Дата релиза не может быть ранее 28.12.1895г.");
-        }
-        log.info("Обновлен фильм: {}", film.toString());
-        films.put(film.getId(), film);
-        return film;
+        return filmService.updateFilm(film);
+    }
+
+    /**
+     * Запрос на получение конкретного фильма по id
+     * @param id - переменная пути, id фильма
+     * @return фильм с идентификатором id
+     */
+    @GetMapping("/{id}")
+    public Film findFilmById(@PathVariable("id") Long id) {
+
+        return filmService.findFilmById(id);
+    }
+
+    /**
+     * Запрос на проставление пользователем с userId лайка фильму с идентификатором id
+     * @param id id фильма
+     * @param userId id пользователя
+     * @return фильм с идентификатором id, которому выставлен лайк
+     */
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLike(@PathVariable("id") Long id,
+                        @PathVariable("userId") Long userId
+    ) {
+        return filmService.addLike(id, userId);
+    }
+
+    /**
+     * Запрос на удаление лайка фильму с идентификатором id пользователем с userId
+     * @param id id фильма
+     * @param userId id пользователя
+     * @return фильм с идентификатором id, у которого удален лайк
+     */
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film removeLike(@PathVariable("id") Long id,
+                           @PathVariable("userId") Long userId
+    ) {
+        return filmService.removeLike(id, userId);
+    }
+
+    /**
+     * Запрос на получение первых {count} фильмов по количеству лайков
+     * @param count ограничение списка фильмов, по умолчанию параметр равен 10
+     * @return список фильмов по количеству лайков
+     */
+    @GetMapping("/popular")
+    public List<Film> findPopularFilms(
+            @RequestParam(defaultValue = "10", required = false) Integer count
+            ) {
+        return filmService.findPopularFilms(count);
     }
 }

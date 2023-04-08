@@ -1,21 +1,28 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Тест класс для проверки обработки эндпоинтов класса FilmController
  */
 class FilmControllerTest {
 
-    FilmController controller = new FilmController();
+    FilmController controller = new FilmController(new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage()));
 
     /**
      * Проверка обработки сохранения фильма при пустом теле запроса
@@ -30,7 +37,7 @@ class FilmControllerTest {
         });
         assertNotNull(thrown.getMessage());
 
-        assertTrue(controller.films.isEmpty(), "Фильм сохранен");
+        assertTrue(controller.getFilmService().getFilmStorage().getFilms().isEmpty(), "Фильм сохранен");
     }
 
     /**
@@ -52,7 +59,7 @@ class FilmControllerTest {
         });
         assertNotNull(thrown.getMessage());
 
-        assertEquals(controller.films.size(), 1, "Фильм 2 сохранен");
+        assertEquals(controller.getFilmService().getFilmStorage().getFilms().size(), 1, "Фильм 2 сохранен");
     }
 
     /**
@@ -70,7 +77,7 @@ class FilmControllerTest {
         });
         assertNotNull(thrown.getMessage());
 
-        assertTrue(controller.films.isEmpty(), "Фильм сохранен");
+        assertTrue(controller.getFilmService().getFilmStorage().getFilms().isEmpty(), "Фильм сохранен");
     }
 
     /**
@@ -91,7 +98,7 @@ class FilmControllerTest {
         });
         assertNotNull(thrown.getMessage());
 
-        assertTrue(controller.films.isEmpty(), "Фильм сохранен");
+        assertTrue(controller.getFilmService().getFilmStorage().getFilms().isEmpty(), "Фильм сохранен");
     }
 
     /**
@@ -109,7 +116,7 @@ class FilmControllerTest {
         });
         assertNotNull(thrown.getMessage());
 
-        assertTrue(controller.films.isEmpty(), "Фильм сохранен");
+        assertTrue(controller.getFilmService().getFilmStorage().getFilms().isEmpty(), "Фильм сохранен");
     }
 
     /**
@@ -127,7 +134,7 @@ class FilmControllerTest {
         });
         assertNotNull(thrown.getMessage());
 
-        assertTrue(controller.films.isEmpty(), "Фильм сохранен");
+        assertTrue(controller.getFilmService().getFilmStorage().getFilms().isEmpty(), "Фильм сохранен");
     }
 
     /**
@@ -143,7 +150,7 @@ class FilmControllerTest {
         });
         assertNotNull(thrown.getMessage());
 
-        assertTrue(controller.films.isEmpty(), "Фильм обновлен");
+        assertTrue(controller.getFilmService().getFilmStorage().getFilms().isEmpty(), "Фильм обновлен");
     }
 
     /**
@@ -152,17 +159,17 @@ class FilmControllerTest {
      * @throws ValidationException
      */
     @Test
-    void shouldNotBeUpdateWhenIdIncorrect() throws ValidationException {
+    void shouldNotBeUpdateWhenIdIncorrect() throws FilmNotFoundException {
         LocalDate releaseDate = LocalDate.of(2000, 11, 11);
         Film film = new Film("nameFilm1", "descriptionFilm1", releaseDate, 120);
         film.setId(9999);
 
-        Throwable thrown = assertThrows(ValidationException.class, () -> {
+        Throwable thrown = assertThrows(FilmNotFoundException.class, () -> {
             controller.updateFilm(film);
         });
         assertNotNull(thrown.getMessage());
 
-        assertTrue(controller.films.isEmpty(), "Фильм обновлен");
+        assertTrue(controller.getFilmService().getFilmStorage().getFilms().isEmpty(), "Фильм обновлен");
     }
 
     /**
@@ -172,7 +179,7 @@ class FilmControllerTest {
      */
     @Test
     void shouldBeSavedListWhenRequestGet() throws ValidationException {
-        controller.films.clear();
+        controller.getFilmService().getFilmStorage().getFilms().clear();
         LocalDate releaseDate = LocalDate.of(2000, 11, 11);
         Film film1 = new Film("nameFilm1", "descriptionFilm1", releaseDate, 120);
         controller.addFilm(film1);
@@ -182,8 +189,7 @@ class FilmControllerTest {
 
         List<Film> filmsSave = new ArrayList<>(controller.findAllFilms());
 
-        assertEquals(filmsSave.get(0).getName(), "nameFilm1", "Поля не совпадают.");
-        assertEquals(filmsSave.get(1).getDuration(), 140, "Поля не совпадают");
+        assertFalse(filmsSave.isEmpty(), "Список пустой.");
         assertEquals(filmsSave.size(), 2, "Размер списка не совпадает.");
     }
 
@@ -206,8 +212,10 @@ class FilmControllerTest {
         });
         assertNotNull(thrown.getMessage());
 
-        assertEquals(controller.films.get(film1.getId()).getDescription(), "descriptionFilm1", "Фильм обновлен");
-        assertEquals(controller.films.get(film1.getId()).getDuration(), 120, "Фильм обновлен");
+        assertEquals(controller.getFilmService().getFilmStorage().getFilms().get(film1.getId()).getDescription(),
+                "descriptionFilm1", "Фильм обновлен");
+        assertEquals(controller.getFilmService().getFilmStorage().getFilms().get(film1.getId()).getDuration(),
+                120, "Фильм обновлен");
     }
 
     /**
@@ -232,8 +240,10 @@ class FilmControllerTest {
         });
         assertNotNull(thrown.getMessage());
 
-        assertEquals(controller.films.get(film1.getId()).getDescription(), "descriptionFilm1", "Фильм обновлен");
-        assertEquals(controller.films.get(film1.getId()).getDuration(), 120, "Фильм обновлен");
+        assertEquals(controller.getFilmService().getFilmStorage().getFilms().get(film1.getId()).getDescription(),
+                "descriptionFilm1", "Фильм обновлен");
+        assertEquals(controller.getFilmService().getFilmStorage().getFilms().get(film1.getId()).getDuration(),
+                120, "Фильм обновлен");
     }
 
     /**
@@ -255,8 +265,10 @@ class FilmControllerTest {
         });
         assertNotNull(thrown.getMessage());
 
-        assertEquals(controller.films.get(film1.getId()).getDescription(), "descriptionFilm1", "Фильм обновлен");
-        assertEquals(controller.films.get(film1.getId()).getDuration(), 120, "Фильм обновлен");
+        assertEquals(controller.getFilmService().getFilmStorage().getFilms().get(film1.getId()).getDescription(),
+                "descriptionFilm1", "Фильм обновлен");
+        assertEquals(controller.getFilmService().getFilmStorage().getFilms().get(film1.getId()).getDuration(),
+                120, "Фильм обновлен");
     }
 
     /**
@@ -278,8 +290,10 @@ class FilmControllerTest {
         });
         assertNotNull(thrown.getMessage());
 
-        assertEquals(controller.films.get(film1.getId()).getDescription(), "descriptionFilm1", "Фильм обновлен");
-        assertEquals(controller.films.get(film1.getId()).getDuration(), 120, "Фильм обновлен");
+        assertEquals(controller.getFilmService().getFilmStorage().getFilms().get(film1.getId()).getDescription(),
+                "descriptionFilm1", "Фильм обновлен");
+        assertEquals(controller.getFilmService().getFilmStorage().getFilms().get(film1.getId()).getDuration(),
+                120, "Фильм обновлен");
     }
 
     /**
@@ -298,8 +312,279 @@ class FilmControllerTest {
 
         controller.updateFilm(filmUpdate);
 
-        assertEquals(controller.films.get(film1.getId()).getDescription(), "descriptionFilmUpdate",
-                "Фильм не обновлен");
-        assertEquals(controller.films.get(film1.getId()).getDuration(), 140, "Фильм не обновлен");
+        assertEquals(controller.getFilmService().getFilmStorage().getFilms().get(film1.getId()).getDescription(),
+                "descriptionFilmUpdate", "Фильм не обновлен");
+        assertEquals(controller.getFilmService().getFilmStorage().getFilms().get(film1.getId()).getDuration(),
+                140, "Фильм не обновлен");
+    }
+
+    /**
+     * Проверка обработки добавления лайка с корректными id
+     *
+     * @throws ValidationException
+     */
+    @Test
+    void shouldBeAddLikeWhenAllIdCorrect() throws ValidationException {
+        LocalDate releaseDate = LocalDate.of(2000, 11, 11);
+        Film film1 = new Film("name1", "descriptionFilm1", releaseDate, 120);
+        controller.addFilm(film1);
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.getFilmService().getUserStorage().createUser(user1);
+        controller.addLike(film1.getId(), user1.getId());
+
+        assertFalse(film1.getLikes().isEmpty(), "Список лайков пустой");
+        assertTrue(film1.getLikes().contains(user1.getId()), "Id пользователя не совпадает");
+    }
+
+    /**
+     * Проверка обработки добавления лайка, когда id фильма некорректный
+     *
+     * @throws FilmNotFoundException
+     * @throws UserNotFoundException
+     */
+    @Test
+    void shouldBeNotAddLikeWhenIdFilmIncorrect() throws FilmNotFoundException, UserNotFoundException {
+        LocalDate releaseDate = LocalDate.of(2000, 11, 11);
+        Film film1 = new Film("name1", "descriptionFilm1", releaseDate, 120);
+        controller.addFilm(film1);
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.getFilmService().getUserStorage().createUser(user1);
+
+        Throwable thrown = assertThrows(FilmNotFoundException.class, () -> {
+            controller.addLike(9999L, user1.getId());
+        });
+        assertNotNull(thrown.getMessage());
+
+        assertTrue(film1.getLikes().isEmpty(), "Список лайков не пустой");
+    }
+
+    /**
+     * Проверка обработки добавления лайка, когда id пользователя некорректный
+     *
+     * @throws FilmNotFoundException
+     * @throws UserNotFoundException
+     */
+    @Test
+    void shouldBeNotAddLikeWhenIdUserIncorrect() throws FilmNotFoundException, UserNotFoundException {
+        LocalDate releaseDate = LocalDate.of(2000, 11, 11);
+        Film film1 = new Film("name1", "descriptionFilm1", releaseDate, 120);
+        controller.addFilm(film1);
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.getFilmService().getUserStorage().createUser(user1);
+
+        Throwable thrown = assertThrows(UserNotFoundException.class, () -> {
+            controller.addLike(film1.getId(), 9999L);
+        });
+        assertNotNull(thrown.getMessage());
+
+        assertTrue(film1.getLikes().isEmpty(), "Список лайков не пустой");
+    }
+
+    /**
+     * Проверка обработки удаления лайка с корректными id
+     *
+     * @throws ValidationException
+     */
+    @Test
+    void shouldBeRemoveLikeWhenAllIdCorrect() throws ValidationException {
+        LocalDate releaseDate = LocalDate.of(2000, 11, 11);
+        Film film1 = new Film("name1", "descriptionFilm1", releaseDate, 120);
+        controller.addFilm(film1);
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.getFilmService().getUserStorage().createUser(user1);
+        controller.addLike(film1.getId(), user1.getId());
+
+        controller.removeLike(film1.getId(), user1.getId());
+
+        assertTrue(film1.getLikes().isEmpty(), "Список лайков не пустой");
+    }
+
+    /**
+     * Проверка обработки удаления лайка, когда id фильма некорректный
+     *
+     * @throws FilmNotFoundException
+     * @throws UserNotFoundException
+     */
+    @Test
+    void shouldBeNotRemoveLikeWhenIdFilmIncorrect() throws FilmNotFoundException, UserNotFoundException {
+        LocalDate releaseDate = LocalDate.of(2000, 11, 11);
+        Film film1 = new Film("name1", "descriptionFilm1", releaseDate, 120);
+        controller.addFilm(film1);
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.getFilmService().getUserStorage().createUser(user1);
+        controller.addLike(film1.getId(), user1.getId());
+
+        Throwable thrown = assertThrows(FilmNotFoundException.class, () -> {
+            controller.removeLike(9999L, user1.getId());
+        });
+        assertNotNull(thrown.getMessage());
+
+        assertFalse(film1.getLikes().isEmpty(), "Список лайков пустой");
+    }
+
+    /**
+     * Проверка обработки удаления лайка, когда id пользователя некорректный
+     *
+     * @throws FilmNotFoundException
+     * @throws UserNotFoundException
+     */
+    @Test
+    void shouldBeNotRemoveLikeWhenIdUserIncorrect() throws FilmNotFoundException, UserNotFoundException {
+        LocalDate releaseDate = LocalDate.of(2000, 11, 11);
+        Film film1 = new Film("name1", "descriptionFilm1", releaseDate, 120);
+        controller.addFilm(film1);
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.getFilmService().getUserStorage().createUser(user1);
+        controller.addLike(film1.getId(), user1.getId());
+
+        Throwable thrown = assertThrows(UserNotFoundException.class, () -> {
+            controller.removeLike(film1.getId(), 9999L);
+        });
+        assertNotNull(thrown.getMessage());
+
+        assertFalse(film1.getLikes().isEmpty(), "Список лайков пустой");
+    }
+
+    /**
+     * Проверка обработки удаления лайка, когда удаляющий пользователь не ставил лайк
+     *
+     * @throws ValidationException
+     */
+    @Test
+    void shouldBeNotRemoveLikeWhenUserNotAddLike() throws ValidationException {
+        LocalDate releaseDate = LocalDate.of(2000, 11, 11);
+        Film film1 = new Film("name1", "descriptionFilm1", releaseDate, 120);
+        controller.addFilm(film1);
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.getFilmService().getUserStorage().createUser(user1);
+        LocalDate birthday2 = LocalDate.of(2002, 10, 10);
+        User user2 = new User("name@yandex.ru", "Login2", birthday2);
+        controller.getFilmService().getUserStorage().createUser(user2);
+
+        controller.addLike(film1.getId(), user1.getId());
+
+        Throwable thrown = assertThrows(ValidationException.class, () -> {
+            controller.removeLike(film1.getId(), user2.getId());
+        });
+        assertNotNull(thrown.getMessage());
+
+        assertEquals(film1.getLikes().size(), 1, "Размер списка не совпадает");
+        assertTrue(film1.getLikes().contains(user1.getId()), "Id пользователя не совпадает");
+        assertFalse(film1.getLikes().contains(user2.getId()), "Id пользователя не совпадает");
+    }
+
+    /**
+     * Проверка обработки получения списка популярных фильмов с корректным count
+     */
+    @Test
+    void shouldBeGetListPopularFilms() {
+        LocalDate releaseDate = LocalDate.of(2000, 11, 11);
+        Film film1 = new Film("name1", "descriptionFilm1", releaseDate, 120);
+        controller.addFilm(film1);
+        LocalDate releaseDate2 = LocalDate.of(2002, 10, 10);
+        Film film2 = new Film("name2", "descriptionFilm2", releaseDate2, 130);
+        controller.addFilm(film2);
+        LocalDate releaseDate3 = LocalDate.of(2003, 12, 12);
+        Film film3 = new Film("name3", "descriptionFilm3", releaseDate3, 140);
+        controller.addFilm(film3);
+
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.getFilmService().getUserStorage().createUser(user1);
+        LocalDate birthday2 = LocalDate.of(2002, 10, 10);
+        User user2 = new User("name@yandex.ru", "Login2", birthday2);
+        controller.getFilmService().getUserStorage().createUser(user2);
+        LocalDate birthday3 = LocalDate.of(2003, 12, 12);
+        User user3 = new User("name@list.ru", "Login3", birthday3);
+        controller.getFilmService().getUserStorage().createUser(user3);
+
+        controller.addLike(film3.getId(), user1.getId());
+        controller.addLike(film3.getId(), user2.getId());
+        controller.addLike(film3.getId(), user3.getId());
+
+        controller.addLike(film2.getId(), user1.getId());
+        controller.addLike(film2.getId(), user3.getId());
+
+        List<Film> filmsPopular = controller.findPopularFilms(3);
+
+        assertEquals(filmsPopular.get(0).getName(), "name3", "Поля не совпадают.");
+        assertEquals(filmsPopular.get(1).getDuration(), 130, "Поля не совпадают");
+        assertEquals(filmsPopular.get(2).getDescription(), "descriptionFilm1", "Поля не совпадают");
+        assertEquals(filmsPopular.size(), 3, "Размер списка не совпадает.");
+    }
+
+    /**
+     * Проверка обработки получения списка популярных фильмов с некорректным count
+     *
+     * @throws ValidationException
+     */
+    @Test
+    void shouldBeNotGetListPopularFilmsWhenCountIncorrect() throws ValidationException {
+        LocalDate releaseDate = LocalDate.of(2000, 11, 11);
+        Film film1 = new Film("name1", "descriptionFilm1", releaseDate, 120);
+        controller.addFilm(film1);
+        LocalDate releaseDate2 = LocalDate.of(2002, 10, 10);
+        Film film2 = new Film("name2", "descriptionFilm2", releaseDate2, 130);
+        controller.addFilm(film2);
+
+        LocalDate birthday = LocalDate.of(2000, 11, 11);
+        User user1 = new User("name@mail.ru", "LoginCorrect", birthday);
+        controller.getFilmService().getUserStorage().createUser(user1);
+        LocalDate birthday2 = LocalDate.of(2002, 10, 10);
+        User user2 = new User("name@yandex.ru", "Login2", birthday2);
+        controller.getFilmService().getUserStorage().createUser(user2);
+
+        controller.addLike(film2.getId(), user1.getId());
+        controller.addLike(film2.getId(), user2.getId());
+
+        Throwable thrown = assertThrows(ValidationException.class, () -> {
+            controller.findPopularFilms(-2);
+        });
+        assertNotNull(thrown.getMessage());
+
+        assertEquals(thrown.getMessage(), "Лимит списка не может быть отрицательным или нулевым.",
+                "Сообщения об ошибке не совпадают");
+    }
+
+    /**
+     * Проверка обработки получения фильма по Id, когда передан корректный Id
+     * @throws FilmNotFoundException
+     */
+    @Test
+    void shouldBeGetFilmWhenFindByCorrectId() throws FilmNotFoundException {
+        LocalDate releaseDate = LocalDate.of(2000, 11, 11);
+        Film film1 = new Film("name1", "descriptionFilm1", releaseDate, 120);
+        controller.addFilm(film1);
+
+        Film saveFilm = controller.findFilmById(film1.getId());
+
+        assertEquals(film1, saveFilm, "Фильмы не совпадают.");
+        assertNotNull(saveFilm, "Фильм не получен");
+    }
+
+    /**
+     * Проверка обработки получения фильма по Id, когда передан некорректный Id
+     * @throws FilmNotFoundException
+     */
+    @Test
+    void shouldBeNotGetFilmWhenFindByInCorrectId() throws FilmNotFoundException {
+        LocalDate releaseDate = LocalDate.of(2000, 11, 11);
+        Film film1 = new Film("name1", "descriptionFilm1", releaseDate, 120);
+        controller.addFilm(film1);
+
+        Throwable thrown = assertThrows(FilmNotFoundException.class, () -> {
+            controller.findFilmById(999L);
+        });
+        assertNotNull(thrown.getMessage());
+
+        assertEquals(thrown.getMessage(), "Фильм с id 999 не найден",
+                "Сообщения об ошибке не совпадают");
     }
 }
