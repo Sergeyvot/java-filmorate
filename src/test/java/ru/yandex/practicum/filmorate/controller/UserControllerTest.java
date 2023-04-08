@@ -515,14 +515,19 @@ class UserControllerTest {
         LocalDate birthday2 = LocalDate.of(2000, 12, 12);
         User user2 = new User("name@yandex.ru", "LoginUser2", birthday2);
         controller.createUser(user2);
+        LocalDate birthday3 = LocalDate.of(2003, 10, 10);
+        User user3 = new User("name@list.ru", "LoginUser3", birthday3);
+        controller.createUser(user3);
 
         controller.addFriend(user1.getId(), user2.getId());
+        controller.addFriend(user1.getId(), user3.getId());
+
         List<User> userFriends = controller.findAllFriends(user1.getId());
         List<User> userFriends2 = controller.findAllFriends(user2.getId());
 
-        assertEquals(userFriends.size(), 1, "Размер списка не совпадает");
+        assertEquals(userFriends.size(), 2, "Размер списка не совпадает");
         assertEquals(userFriends2.size(), 1, "Размер списка не совпадает");
-        assertEquals(userFriends.get(0), user2,"Id друга не совпадает");
+        assertEquals(userFriends.get(1), user3,"Id друга не совпадает");
         assertEquals(userFriends2.get(0), user1,"Id друга не совпадает");
     }
 

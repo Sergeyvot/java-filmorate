@@ -8,10 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -144,7 +141,7 @@ public class UserService {
         List<User> userFriends = new ArrayList<>();
 
         if (!user.getFriends().isEmpty() && !otherUser.getFriends().isEmpty()) {
-            Set<Long> idMutualFriends = user.getFriends();
+            Set<Long> idMutualFriends = new HashSet<>(user.getFriends());
             idMutualFriends.retainAll(otherUser.getFriends());
             userFriends = idMutualFriends.stream()
                     .map(x -> userStorage.getUsers().get(x))
