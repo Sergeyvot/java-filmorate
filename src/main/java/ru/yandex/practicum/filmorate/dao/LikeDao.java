@@ -8,5 +8,6 @@ import ru.yandex.practicum.filmorate.model.Like;
 public interface LikeDao {
 
     Like addLike(int id, int userId);
+
     void removeLike(int id, int userId);
 }
