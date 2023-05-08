@@ -20,11 +20,12 @@ public class GenreDaoImpl implements GenreDao {
 
     private final JdbcTemplate jdbcTemplate;
     private final GenreMapper genreMapper;
-    @Autowired
-    public GenreDaoImpl(JdbcTemplate jdbcTemplate,GenreMapper genreMapper){
 
-        this.jdbcTemplate=jdbcTemplate;
-        this.genreMapper=genreMapper;
+    @Autowired
+    public GenreDaoImpl(JdbcTemplate jdbcTemplate, GenreMapper genreMapper) {
+
+        this.jdbcTemplate = jdbcTemplate;
+        this.genreMapper = genreMapper;
     }
 
     /**
@@ -46,7 +47,7 @@ public class GenreDaoImpl implements GenreDao {
     public Genre findGenreById(int id) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from genre where id = ?", id);
 
-        if(userRows.next()) {
+        if (userRows.next()) {
             Genre genre = new Genre(
                     userRows.getInt("id"),
                     userRows.getString("name"));
