@@ -89,7 +89,7 @@ public class FriendDaoImpl implements FriendDao {
     public List<User> findAllFriends(int id) {
 
         String sql = "select * from users WHERE id IN "
-                +"(select friend_id from friends where user_id = ?)";
+                + "(select friend_id from friends where user_id = ?)";
 
         return jdbcTemplate.query(sql, (rs, rowNum) ->
                 makeUser(rs), id);
