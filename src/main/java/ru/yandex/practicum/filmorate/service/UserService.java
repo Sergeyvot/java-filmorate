@@ -11,11 +11,18 @@ import java.util.List;
 public interface UserService {
 
     Collection<User> findAllUsers();
+
     User findUserById(int id);
+
     User createUser(User user);
+
     User updateUser(User user);
+
     User addFriend(int id, int friendId);
+
     User removeFriend(int id, int friendId);
+
     List<User> findAllFriends(int id);
+
     List<User> findMutualFriends(int id, int otherId);
 }

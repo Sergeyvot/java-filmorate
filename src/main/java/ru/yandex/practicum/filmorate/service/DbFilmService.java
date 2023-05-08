@@ -184,10 +184,10 @@ public class DbFilmService implements FilmService {
      * @throws SQLException
      */
     private Film makeFilm(ResultSet rs) throws SQLException {
-        Film film = new Film(rs.getString("name")
-                , rs.getString("description")
-                , rs.getDate("release_date").toLocalDate()
-                , rs.getInt("duration"));
+        Film film = new Film(rs.getString("name"),
+                rs.getString("description"),
+                rs.getDate("release_date").toLocalDate(),
+                rs.getInt("duration"));
         film.setId(rs.getInt("id"));
         film.setMpa(mpaDao.findMpaById(rs.getInt("mpa_id")));
         film.setGenres(getGenres(film.getId()));

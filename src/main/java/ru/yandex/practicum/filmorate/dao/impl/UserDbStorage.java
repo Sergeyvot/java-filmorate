@@ -80,12 +80,12 @@ public class UserDbStorage implements UserStorage {
             String sql = "update users set " +
                     "name = ?, email = ?, login = ?, birthday = ? " +
                     "where id = ?";
-            jdbcTemplate.update(sql
-                    , updateUser.getName()
-                    , updateUser.getEmail()
-                    , updateUser.getLogin()
-                    , updateUser.getBirthday()
-                    , updateUser.getId());
+            jdbcTemplate.update(sql,
+                    updateUser.getName(),
+                    updateUser.getEmail(),
+                    updateUser.getLogin(),
+                    updateUser.getBirthday(),
+                    updateUser.getId());
             log.info("Обновлен пользователь: {}", updateUser);
         } else {
             log.error("Передан некорректный id пользователя: {}", updateUser.getId());
@@ -131,9 +131,9 @@ public class UserDbStorage implements UserStorage {
      * @throws SQLException
      */
     private User makeUser(ResultSet rs) throws SQLException {
-        User user = new User(rs.getString("email")
-                , rs.getString("login")
-                , rs.getDate("birthday").toLocalDate());
+        User user = new User(rs.getString("email"),
+                rs.getString("login"),
+                rs.getDate("birthday").toLocalDate());
         user.setId(rs.getInt("id"));
         user.setName(rs.getString("name"));
         return user;

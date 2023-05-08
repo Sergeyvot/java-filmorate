@@ -119,9 +119,9 @@ public class FriendDaoImpl implements FriendDao {
      * @throws SQLException
      */
     private User makeUser(ResultSet rs) throws SQLException {
-        User user = new User(rs.getString("email")
-                , rs.getString("login")
-                , rs.getDate("birthday").toLocalDate());
+        User user = new User(rs.getString("email"),
+                rs.getString("login"),
+                rs.getDate("birthday").toLocalDate());
         user.setId(rs.getInt("id"));
         user.setName(rs.getString("name"));
         return user;

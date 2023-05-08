@@ -17,7 +17,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -102,13 +101,13 @@ public class FilmDbStorage implements FilmStorage {
             String sql = "update films set " +
                     "name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? " +
                     "where id = ?";
-            jdbcTemplate.update(sql
-                    , updateFilm.getName()
-                    , updateFilm.getDescription()
-                    , updateFilm.getReleaseDate()
-                    , updateFilm.getDuration()
-                    , updateFilm.getMpa().getId()
-                    , updateFilm.getId());
+            jdbcTemplate.update(sql,
+                    updateFilm.getName(),
+                    updateFilm.getDescription(),
+                    updateFilm.getReleaseDate(),
+                    updateFilm.getDuration(),
+                    updateFilm.getMpa().getId(),
+                    updateFilm.getId());
             updateFilm.setMpa(mpaDao.findMpaById(updateFilm.getMpa().getId()));
 
             String sqlDropGenre = "delete from genre_film where film_id = ?";
@@ -136,6 +135,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         return updateFilm;
     }
+
     /**
      * Метод получения всех фильмов из БД
      * @return - коллекция фильмов
@@ -174,10 +174,10 @@ public class FilmDbStorage implements FilmStorage {
      * @throws SQLException
      */
     private Film makeFilm(ResultSet rs) throws SQLException {
-        Film film = new Film(rs.getString("name")
-                , rs.getString("description")
-                , rs.getDate("release_date").toLocalDate()
-                , rs.getInt("duration"));
+        Film film = new Film(rs.getString("name"),
+                rs.getString("description"),
+                rs.getDate("release_date").toLocalDate(),
+                rs.getInt("duration"));
         film.setId(rs.getInt("id"));
         film.setMpa(mpaDao.findMpaById(rs.getInt("mpa_id")));
         film.setGenres(getGenres(film.getId()));
