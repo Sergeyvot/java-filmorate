@@ -15,7 +15,7 @@ public class MpaService {
     private final MpaDaoImpl mpaDao;
 
     public MpaService(MpaDaoImpl mpaDao) {
-        this.mpaDao=mpaDao;
+        this.mpaDao = mpaDao;
     }
 
     /**

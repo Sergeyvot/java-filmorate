@@ -15,7 +15,7 @@ public class GenreService {
     private final GenreDaoImpl genreDao;
 
     public GenreService(GenreDaoImpl genreDao) {
-        this.genreDao=genreDao;
+        this.genreDao = genreDao;
     }
 
     /**
