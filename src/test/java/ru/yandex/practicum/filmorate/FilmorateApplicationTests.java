@@ -37,7 +37,7 @@ class FilmorateApplicationTests {
 
     @Test
     public void testFindUserById() {
-        User user1 = new User("емайл@mail.ru", "логин", LocalDate.of(2000, 11, 11));
+        User user1 = new User("емайл1@mail.ru", "логин1", LocalDate.of(2000, 11, 11));
         User saveUser = userStorage.createUser(user1);
         Optional<User> userOptional = Optional.ofNullable(userStorage.findUserById(saveUser.getId()));
 
@@ -50,7 +50,7 @@ class FilmorateApplicationTests {
 
     @Test
     public void testRemoveUser() {
-        User user = new User("емайл2@mail.ru", "login", LocalDate.of(2001, 11, 11));
+        User user = new User("емайл2@mail.ru", "login2", LocalDate.of(2001, 11, 11));
         User saveUser = userStorage.createUser(user);
         userStorage.removeUser(saveUser.getId());
         Throwable thrown = assertThrows(UserNotFoundException.class, () -> {
@@ -64,24 +64,24 @@ class FilmorateApplicationTests {
 
     @Test
     public void testUpdateUser() {
-        User user = new User("емайл2@mail.ru", "LoginOne", LocalDate.of(2001, 11, 11));
+        User user = new User("емайл3@mail.ru", "LoginOne3", LocalDate.of(2001, 11, 11));
         User saveUser = userStorage.createUser(user);
-        User updateUser = new User("email@mail.ru", "updateLogin",
+        User updateUser = new User("email4@mail.ru", "updateLogin4",
                 LocalDate.of(2000, 11, 11));
         updateUser.setId(saveUser.getId());
         User saveUpdateUser = userStorage.updateUser(updateUser);
 
-        assertEquals("email@mail.ru", saveUpdateUser.getEmail(),
+        assertEquals("email4@mail.ru", saveUpdateUser.getEmail(),
                 "Поля обновленного пользователя не совпадают");
-        assertNotEquals("емайл2@mail.ru", saveUpdateUser.getEmail(),
+        assertNotEquals("емайл3@mail.ru", saveUpdateUser.getEmail(),
                 "Поля пользователя не обновлены");
     }
 
     @Test
     public void testGetAllUsers() {
-        User user1 = new User("емайл@mail.ru", "LoginAll", LocalDate.of(2001, 11, 11));
+        User user1 = new User("емайл5@mail.ru", "LoginAll5", LocalDate.of(2001, 11, 11));
         userStorage.createUser(user1);
-        User user2 = new User("email@mail.ru", "Login2",
+        User user2 = new User("email6@mail.ru", "Login26",
                 LocalDate.of(2000, 12, 11));
         User saveUser = userStorage.createUser(user2);
         List<User> saveUsers = userStorage.getAllUsers().stream().collect(Collectors.toList());
@@ -91,9 +91,9 @@ class FilmorateApplicationTests {
 
     @Test
     public void testAddFriend() {
-        User user1 = new User("емайл@mail.ru", "LoginAll", LocalDate.of(2001, 11, 11));
+        User user1 = new User("емайл7@mail.ru", "LoginAll7", LocalDate.of(2001, 11, 11));
         User saveUser1 = userStorage.createUser(user1);
-        User user2 = new User("email@mail.ru", "Login2",
+        User user2 = new User("email8@mail.ru", "Login28",
                 LocalDate.of(2000, 12, 11));
         User saveUser2 = userStorage.createUser(user2);
         User saveUserFriend = friendDao.addFriend(saveUser1.getId(), saveUser2.getId());
@@ -104,9 +104,9 @@ class FilmorateApplicationTests {
 
     @Test
     public void testRemoveFriend() {
-        User user1 = new User("емайл@mail.ru", "LoginAll", LocalDate.of(2001, 11, 11));
+        User user1 = new User("емайл9@mail.ru", "LoginAll9", LocalDate.of(2001, 11, 11));
         User saveUser1 = userStorage.createUser(user1);
-        User user2 = new User("email@mail.ru", "Login2",
+        User user2 = new User("email10@mail.ru", "Login210",
                 LocalDate.of(2000, 12, 11));
         User saveUser2 = userStorage.createUser(user2);
         User addFriend = friendDao.addFriend(saveUser1.getId(), saveUser2.getId());
@@ -118,12 +118,12 @@ class FilmorateApplicationTests {
 
     @Test
     public void testFindAllFriends() {
-        User user1 = new User("емайл@mail.ru", "LoginAll", LocalDate.of(2001, 11, 11));
+        User user1 = new User("емайл11@mail.ru", "LoginAll11", LocalDate.of(2001, 11, 11));
         User saveUser1 = userStorage.createUser(user1);
-        User user2 = new User("email@mail.ru", "Login2",
+        User user2 = new User("email12@mail.ru", "Login212",
                 LocalDate.of(2000, 12, 11));
         User saveUser2 = userStorage.createUser(user2);
-        User user3 = new User("mail@@yandex.ru", "LoginUser", LocalDate.of(2010, 12, 11));
+        User user3 = new User("mail@13@yandex.ru", "LoginUser13", LocalDate.of(2010, 12, 11));
         User saveUser3 = userStorage.createUser(user3);
 
         friendDao.addFriend(saveUser1.getId(), saveUser2.getId());
@@ -139,12 +139,12 @@ class FilmorateApplicationTests {
 
     @Test
     public void testFindMutualFriends() {
-        User user1 = new User("емайл@mail.ru", "LoginAll", LocalDate.of(2001, 11, 11));
+        User user1 = new User("емайл14@mail.ru", "LoginAll14", LocalDate.of(2001, 11, 11));
         User saveUser1 = userStorage.createUser(user1);
-        User user2 = new User("email@mail.ru", "Login2",
+        User user2 = new User("email15@mail.ru", "Login215",
                 LocalDate.of(2000, 12, 11));
         User saveUser2 = userStorage.createUser(user2);
-        User user3 = new User("mail@@yandex.ru", "LoginUser", LocalDate.of(2010, 12, 11));
+        User user3 = new User("mail@16@yandex.ru", "LoginUser16", LocalDate.of(2010, 12, 11));
         User saveUser3 = userStorage.createUser(user3);
 
         friendDao.addFriend(saveUser1.getId(), saveUser2.getId());
@@ -272,7 +272,7 @@ class FilmorateApplicationTests {
                 LocalDate.of(2000, 12, 11), 120);
         film1.setMpa(new Mpa(1, "G"));
         Film saveFilm1 = filmDbStorage.addFilm(film1);
-        User user1 = new User("емайл@mail.ru", "LoginAll", LocalDate.of(2001, 11, 11));
+        User user1 = new User("емайл17@mail.ru", "LoginAll17", LocalDate.of(2001, 11, 11));
         User saveUser1 = userStorage.createUser(user1);
 
         Film checkFilm = dbFilmService.addLike(saveFilm1.getId(), saveUser1.getId());
@@ -302,7 +302,7 @@ class FilmorateApplicationTests {
                 LocalDate.of(2000, 12, 11), 120);
         film1.setMpa(new Mpa(1, "G"));
         Film saveFilm1 = filmDbStorage.addFilm(film1);
-        User user1 = new User("емайл@mail.ru", "LoginAll", LocalDate.of(2001, 11, 11));
+        User user1 = new User("емайл18@mail.ru", "LoginAll18", LocalDate.of(2001, 11, 11));
         User saveUser1 = userStorage.createUser(user1);
 
         Film checkFilm = dbFilmService.addLike(saveFilm1.getId(), saveUser1.getId());
@@ -337,9 +337,9 @@ class FilmorateApplicationTests {
                 LocalDate.of(2000, 10, 12), 140);
         film2.setMpa(new Mpa(2, "PG"));
         Film saveFilm2 = filmDbStorage.addFilm(film2);
-        User user1 = new User("емайл@mail.ru", "LoginAll", LocalDate.of(2001, 11, 11));
+        User user1 = new User("емайл19@mail.ru", "LoginAll19", LocalDate.of(2001, 11, 11));
         User saveUser1 = userStorage.createUser(user1);
-        User user2 = new User("email@mail.ru", "Login2",
+        User user2 = new User("email20@mail.ru", "Login220",
                 LocalDate.of(2000, 12, 11));
         User saveUser2 = userStorage.createUser(user2);
 

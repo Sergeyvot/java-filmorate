@@ -9,11 +9,11 @@ import java.util.List;
  */
 public interface FriendDao {
 
-    User addFriend(int id, int friendId);
+    User addFriend(long id, long friendId);
 
-    User removeFriend(int id, int friendId);
+    User removeFriend(long id, long friendId);
 
-    List<User> findAllFriends(int id);
+    List<User> findAllFriends(long id);
 
-    List<User> findMutualFriends(int id, int otherId);
+    List<User> findMutualFriends(long id, long otherId);
 }

@@ -38,7 +38,7 @@ public class FriendDaoImpl implements FriendDao {
      * @return - пользователь, список друзей которого пополнился
      */
     @Override
-    public User addFriend(int id, int friendId) {
+    public User addFriend(long id, long friendId) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from friends where user_id = ? AND friend_id = ?",
                 id, friendId);
         if (userRows.next()) {
@@ -62,7 +62,7 @@ public class FriendDaoImpl implements FriendDao {
      * @return - пользователь, список друзей которого уменьшился
      */
     @Override
-    public User removeFriend(int id, int friendId) {
+    public User removeFriend(long id, long friendId) {
 
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from friends where user_id = ? AND friend_id = ?",
                 id, friendId);
@@ -86,10 +86,10 @@ public class FriendDaoImpl implements FriendDao {
      * @return - список друзей
      */
     @Override
-    public List<User> findAllFriends(int id) {
+    public List<User> findAllFriends(long id) {
 
-        String sql = "select * from users WHERE id IN "
-                + "(select friend_id from friends where user_id = ?)";
+        String sql = "select u.* from users u "
+                + "join (select friend_id from friends where user_id = ?) as allfriends on u.id = allfriends.friend_id";
 
         return jdbcTemplate.query(sql, (rs, rowNum) ->
                 makeUser(rs), id);
@@ -102,11 +102,11 @@ public class FriendDaoImpl implements FriendDao {
      * @return - список общих друзей
      */
     @Override
-    public List<User> findMutualFriends(int id, int otherId) {
+    public List<User> findMutualFriends(long id, long otherId) {
 
-        String sql = "select * from users where id IN "
-                + "(select friend_id from friends where user_id = ?"
-                + " and friend_id in (select friend_id from friends where user_id = ?))";
+        String sql = "select u.* from users u "
+                + "join (select friend_id from friends where user_id = ?) as onefriends on u.id = onefriends.friend_id "
+                + "join (select friend_id from friends where user_id = ?) as twofriends on u.id = twofriends.friend_id";
 
         return jdbcTemplate.query(sql, (rs, rowNum) ->
                 makeUser(rs),id,otherId);
@@ -122,7 +122,7 @@ public class FriendDaoImpl implements FriendDao {
         User user = new User(rs.getString("email"),
                 rs.getString("login"),
                 rs.getDate("birthday").toLocalDate());
-        user.setId(rs.getInt("id"));
+        user.setId(rs.getLong("id"));
         user.setName(rs.getString("name"));
         return user;
     }

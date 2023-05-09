@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorage;
 import ru.yandex.practicum.filmorate.dao.impl.GenreDaoImpl;
 import ru.yandex.practicum.filmorate.dao.impl.LikeDaoImpl;
-import ru.yandex.practicum.filmorate.dao.impl.MpaDaoImpl;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Like;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.sql.ResultSet;
@@ -33,17 +33,15 @@ public class DbFilmService implements FilmService {
     @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
     private final LikeDaoImpl likeDao;
-    private final MpaDaoImpl mpaDao;
     private final GenreDaoImpl genreDao;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public DbFilmService(FilmDbStorage filmStorage, LikeDaoImpl likeDao, MpaDaoImpl mpaDao,
+    public DbFilmService(FilmDbStorage filmStorage, LikeDaoImpl likeDao,
                          GenreDaoImpl genreDao, JdbcTemplate jdbcTemplate) {
 
         this.filmStorage = filmStorage;
         this.likeDao = likeDao;
-        this.mpaDao = mpaDao;
         this.genreDao = genreDao;
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -63,7 +61,7 @@ public class DbFilmService implements FilmService {
      * @return - полученный фильм
      */
     @Override
-    public Film findFilmById(int id) {
+    public Film findFilmById(long id) {
 
         return filmStorage.findFilmById(id);
     }
@@ -84,7 +82,7 @@ public class DbFilmService implements FilmService {
      * @param id - id фильма
      */
     @Override
-    public void removeFilm(int id) {
+    public void removeFilm(long id) {
         filmStorage.removeFilm(id);
     }
 
@@ -106,7 +104,7 @@ public class DbFilmService implements FilmService {
      * @return - фильм, которому выставлен лайк
      */
     @Override
-    public Film addLike(int id, int userId) {
+    public Film addLike(long id, long userId) {
 
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from films where id = ?", id);
         if (userRows.next()) {
@@ -136,7 +134,7 @@ public class DbFilmService implements FilmService {
      * @return - фильм, у которого удален лайк
      */
     @Override
-    public Film removeLike(int id, int userId) {
+    public Film removeLike(long id, long userId) {
 
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from films where id = ?", id);
         if (userRows.next()) {
@@ -165,8 +163,9 @@ public class DbFilmService implements FilmService {
     @Override
     public List<Film> findPopularFilms(Integer count) {
 
-        String sql = "select * from films f right join "
-                + "(select film_id, count(user_id) from likes group by film_id order by count(user_id) desc limit "
+        String sql = "select f.*, mpa.name as mpa_name from films f "
+        + "join mpa on f.mpa_id = mpa.id "
+        + "right join (select film_id, count(user_id) from likes group by film_id order by count(user_id) desc limit "
                 + count + ") as popular on f.id = popular.film_id";
 
         List<Film> popularFilms = jdbcTemplate.query(sql, (rs, rowNum) ->
@@ -188,8 +187,8 @@ public class DbFilmService implements FilmService {
                 rs.getString("description"),
                 rs.getDate("release_date").toLocalDate(),
                 rs.getInt("duration"));
-        film.setId(rs.getInt("id"));
-        film.setMpa(mpaDao.findMpaById(rs.getInt("mpa_id")));
+        film.setId(rs.getLong("id"));
+        film.setMpa(new Mpa(rs.getInt("mpa_id"), rs.getString("mpa_name")));
         film.setGenres(getGenres(film.getId()));
         return film;
     }
@@ -199,7 +198,7 @@ public class DbFilmService implements FilmService {
      * @param id - id фильма
      * @return - список жанров
      */
-    private Set<Genre> getGenres(int id) {
+    private Set<Genre> getGenres(long id) {
         String sqlGenre = "select genre_id from genre_film where film_id = ?";
         return jdbcTemplate.query(sqlGenre, (rs, rowNum) ->
                         rs.getInt("genre_id"), id).stream()

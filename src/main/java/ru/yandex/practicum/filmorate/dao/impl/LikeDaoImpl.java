@@ -28,7 +28,7 @@ public class LikeDaoImpl implements LikeDao {
      * @return - полученный лайк
      */
     @Override
-    public Like addLike(int id, int userId) {
+    public Like addLike(long id, long userId) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from likes where film_id = ? and user_id = ?",
                 id, userId);
         if (userRows.next()) {
@@ -48,7 +48,7 @@ public class LikeDaoImpl implements LikeDao {
      * @param userId - id пользователя, удаляющего лайк
      */
     @Override
-    public void removeLike(int id, int userId) {
+    public void removeLike(long id, long userId) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from likes where film_id = ? and user_id = ?",
                 id, userId);
         if (userRows.next()) {

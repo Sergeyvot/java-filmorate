@@ -12,17 +12,17 @@ public interface FilmService {
 
     Collection<Film> getAllFilms();
 
-    Film findFilmById(int id);
+    Film findFilmById(long id);
 
     Film addFilm(Film film);
 
-    void removeFilm(int id);
+    void removeFilm(long id);
 
     Film updateFilm(Film updateFilm);
 
-    Film addLike(int id, int userId);
+    Film addLike(long id, long userId);
 
-    Film removeLike(int id, int userId);
+    Film removeLike(long id, long userId);
 
     List<Film> findPopularFilms(Integer count);
 }

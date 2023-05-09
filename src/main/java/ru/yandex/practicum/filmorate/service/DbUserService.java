@@ -50,7 +50,7 @@ public class DbUserService implements UserService {
      * @return - полученный объект User
      */
     @Override
-    public User findUserById(int id) {
+    public User findUserById(long id) {
         return userStorage.findUserById(id);
     }
 
@@ -81,7 +81,7 @@ public class DbUserService implements UserService {
      * @return - пользователь, у которого увеличивается список друзей
      */
     @Override
-    public User addFriend(int id, int friendId) {
+    public User addFriend(long id, long friendId) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from users where id = ?", id);
         if (userRows.next()) {
             SqlRowSet userRows1 = jdbcTemplate.queryForRowSet("select 1 from users where id = ?", friendId);
@@ -105,7 +105,7 @@ public class DbUserService implements UserService {
      * @return - пользователь, у которого уменьшается список друзей
      */
     @Override
-    public User removeFriend(int id, int friendId) {
+    public User removeFriend(long id, long friendId) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from users where id = ?", id);
         if (userRows.next()) {
             SqlRowSet userRows1 = jdbcTemplate.queryForRowSet("select 1 from users where id = ?", friendId);
@@ -128,7 +128,7 @@ public class DbUserService implements UserService {
      * @return - список друзей
      */
     @Override
-    public List<User> findAllFriends(int id) {
+    public List<User> findAllFriends(long id) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from users where id = ?", id);
         if (userRows.next()) {
             List<User> friendsUser = friendDao.findAllFriends(id);
@@ -147,7 +147,7 @@ public class DbUserService implements UserService {
      * @return - список общих друзей
      */
     @Override
-    public List<User> findMutualFriends(int id, int otherId) {
+    public List<User> findMutualFriends(long id, long otherId) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from users where id = ?", id);
         if (userRows.next()) {
             SqlRowSet userRows1 = jdbcTemplate.queryForRowSet("select 1 from users where id = ?", otherId);

@@ -43,7 +43,7 @@ public class UserDbStorage implements UserStorage {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
                 .usingGeneratedKeyColumns("id");
-        int idUser = simpleJdbcInsert.executeAndReturnKey(user.toMap()).intValue();
+        long idUser = simpleJdbcInsert.executeAndReturnKey(user.toMap()).longValue();
         user.setId(idUser);
         log.info("Добавлен пользователь с id {}", idUser);
         return user;
@@ -54,7 +54,7 @@ public class UserDbStorage implements UserStorage {
      * @param id - id пользователя
      */
     @Override
-    public void removeUser(int id) {
+    public void removeUser(long id) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from users where id = ?", id);
         if (userRows.next()) {
             String sql = "delete from users where id = ?";
@@ -111,7 +111,7 @@ public class UserDbStorage implements UserStorage {
      * @return - полученный пользователь
      */
     @Override
-    public User findUserById(int id) {
+    public User findUserById(long id) {
 
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from users where id = ?", id);
         if (userRows.next()) {
@@ -134,7 +134,7 @@ public class UserDbStorage implements UserStorage {
         User user = new User(rs.getString("email"),
                 rs.getString("login"),
                 rs.getDate("birthday").toLocalDate());
-        user.setId(rs.getInt("id"));
+        user.setId(rs.getLong("id"));
         user.setName(rs.getString("name"));
         return user;
     }

@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS users
     );
 
 ALTER TABLE users ALTER COLUMN id RESTART WITH 1;
+ALTER TABLE users ADD CONSTRAINT IF NOT EXISTS constraint_unique_email UNIQUE (email);
+ALTER TABLE users ADD CONSTRAINT IF NOT EXISTS constraint_unique_login UNIQUE (login);
 
 CREATE TABLE IF NOT EXISTS mpa
 (

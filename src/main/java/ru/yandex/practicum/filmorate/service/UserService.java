@@ -12,17 +12,17 @@ public interface UserService {
 
     Collection<User> findAllUsers();
 
-    User findUserById(int id);
+    User findUserById(long id);
 
     User createUser(User user);
 
     User updateUser(User user);
 
-    User addFriend(int id, int friendId);
+    User addFriend(long id, long friendId);
 
-    User removeFriend(int id, int friendId);
+    User removeFriend(long id, long friendId);
 
-    List<User> findAllFriends(int id);
+    List<User> findAllFriends(long id);
 
-    List<User> findMutualFriends(int id, int otherId);
+    List<User> findMutualFriends(long id, long otherId);
 }

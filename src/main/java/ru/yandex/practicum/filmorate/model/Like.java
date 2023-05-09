@@ -7,6 +7,6 @@ import lombok.Data;
  */
 @Data
 public class Like {
-    private final int filmId;
-    private final int userId;
+    private final long filmId;
+    private final long userId;
 }

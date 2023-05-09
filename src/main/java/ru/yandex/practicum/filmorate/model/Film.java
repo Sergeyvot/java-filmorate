@@ -8,8 +8,8 @@ import java.util.*;
 
 @Data
 public class Film {
-    private int id;
-    private Set<Integer> likes = new HashSet<>();
+    private long id;
+    private Set<Long> likes = new HashSet<>();
     /**
      * Добавлены поля жанров и рейтинга фильма
      */

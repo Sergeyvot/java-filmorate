@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.sql.ResultSet;
@@ -56,8 +57,7 @@ public class FilmDbStorage implements FilmStorage {
         film.setMpa(mpaDao.findMpaById(film.getMpa().getId()));
 
         if (!film.getGenres().isEmpty()) {
-            String sqlQuery = "insert into genre_film(film_id, genre_id) " +
-                    "values (?, ?)";
+            String sqlQuery = "insert into genre_film(film_id, genre_id) values (?, ?)";
             for (Genre genre : film.getGenres()) {
                 jdbcTemplate.update(sqlQuery,
                         film.getId(), genre.getId());
@@ -76,7 +76,7 @@ public class FilmDbStorage implements FilmStorage {
      * @param id - id удаляемого фильма
      */
     @Override
-    public void removeFilm(int id) {
+    public void removeFilm(long id) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from films where id = ?", id);
         if (userRows.next()) {
             String sql = "delete from films where id = ?";
@@ -115,8 +115,7 @@ public class FilmDbStorage implements FilmStorage {
 
             if (!updateFilm.getGenres().isEmpty()) {
 
-                String sqlGenre = "insert into genre_film(film_id, genre_id) "
-                        + "values (?, ?)";
+                String sqlGenre = "insert into genre_film(film_id, genre_id) values (?, ?)";
                 for (Genre genre : updateFilm.getGenres()) {
                     jdbcTemplate.update(sqlGenre, updateFilm.getId(), genre.getId());
 
@@ -142,7 +141,8 @@ public class FilmDbStorage implements FilmStorage {
      */
     @Override
     public Collection<Film> getAllFilms() {
-        String sql = "select * from films";
+        String sql = "select f.*, mpa.name as mpa_name from films f "
+                + "join mpa on f.mpa_id = mpa.id";
 
         return jdbcTemplate.query(sql, (rs, rowNum) ->
                 makeFilm(rs));
@@ -154,10 +154,11 @@ public class FilmDbStorage implements FilmStorage {
      * @return - полученный фильм
      */
     @Override
-    public Film findFilmById(int id) {
+    public Film findFilmById(long id) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from films where id = ?", id);
         if (userRows.next()) {
-            String sql = "select * from films where id = ?";
+            String sql = "select f.*, mpa.name as mpa_name from films f "
+                    + "join mpa on f.mpa_id = mpa.id where f.id = ?";
             Film film = jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) ->
                     makeFilm(rs));
             return film;
@@ -178,8 +179,8 @@ public class FilmDbStorage implements FilmStorage {
                 rs.getString("description"),
                 rs.getDate("release_date").toLocalDate(),
                 rs.getInt("duration"));
-        film.setId(rs.getInt("id"));
-        film.setMpa(mpaDao.findMpaById(rs.getInt("mpa_id")));
+        film.setId(rs.getLong("id"));
+        film.setMpa(new Mpa(rs.getInt("mpa_id"), rs.getString("mpa_name")));
         film.setGenres(getGenres(film.getId()));
         return film;
     }
@@ -189,7 +190,7 @@ public class FilmDbStorage implements FilmStorage {
      * @param id - id фильма
      * @return - Set<Genre>
      */
-    private Set<Genre> getGenres(int id) {
+    private Set<Genre> getGenres(long id) {
         String sqlGenre = "select genre_id from genre_film where film_id = ?";
         return jdbcTemplate.query(sqlGenre, (rs, rowNum) ->
                         rs.getInt("genre_id"), id).stream()
